@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import InternHub from "./intern-hub-mvp.jsx";
 
 // ─── NEIGHBORHOOD DATA (ATL & NYC) ───
 const NEIGHBORHOODS = {
@@ -322,6 +323,7 @@ const NeighborhoodCard = ({ n, rank, isTop }) => (
 
 // ─── MAIN APP ───
 export default function InternNestMVP() {
+  const [mode, setMode] = useState("quiz"); // quiz | explore
   const [step, setStep] = useState("landing"); // landing | form | results | feedback
   const [formData, setFormData] = useState({
     name: "", email: "", school: "", city: "", company: "",
@@ -434,7 +436,7 @@ export default function InternNestMVP() {
           padding: "22px 0", animation: "fadeSlideUp 0.5s ease",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
-            onClick={() => { setStep("landing"); setResults([]); }}>
+            onClick={() => { setStep("landing"); setResults([]); setMode("quiz"); }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
               background: `linear-gradient(135deg, ${accentColor}, ${accentColor}88)`,
@@ -442,19 +444,42 @@ export default function InternNestMVP() {
             }}>⌂</div>
             <span style={{ fontFamily: "var(--font-display)", fontSize: 22 }}>InternNest</span>
           </div>
-          {step !== "landing" && (
-            <button onClick={() => { setStep("landing"); setResults([]); }} style={{
-              padding: "8px 18px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.12)",
-              background: "transparent", color: "rgba(255,255,255,0.6)", fontSize: 13,
-              cursor: "pointer", fontFamily: "var(--font-body)",
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Mode toggle */}
+            <div style={{
+              display: "flex", background: "rgba(255,255,255,0.06)", borderRadius: 100,
+              padding: 4, border: "1px solid rgba(255,255,255,0.08)",
             }}>
-              ← Back
-            </button>
-          )}
+              {[{ id: "quiz", label: "Get My Match" }, { id: "explore", label: "Explore All Cities" }].map((m) => (
+                <button key={m.id} onClick={() => setMode(m.id)} style={{
+                  padding: "7px 16px", borderRadius: 100, border: "none", fontSize: 12,
+                  fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)",
+                  background: mode === m.id ? accentColor : "transparent",
+                  color: mode === m.id ? "#fff" : "rgba(255,255,255,0.5)",
+                  transition: "all 0.2s ease",
+                }}>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+            {mode === "quiz" && step !== "landing" && (
+              <button onClick={() => { setStep("landing"); setResults([]); }} style={{
+                padding: "8px 18px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.12)",
+                background: "transparent", color: "rgba(255,255,255,0.6)", fontSize: 13,
+                cursor: "pointer", fontFamily: "var(--font-body)",
+              }}>
+                ← Back
+              </button>
+            )}
+          </div>
         </nav>
 
-        {/* ═══════════════════════ LANDING ═══════════════════════ */}
-        {step === "landing" && (
+        {/* ═══ EXPLORE MODE ═══ */}
+        {mode === "explore" && <InternHub />}
+
+        {/* ═══════════════════════ QUIZ MODE ═══════════════════════ */}
+        {mode === "quiz" && step === "landing" && (
           <div style={{ animation: "fadeSlideUp 0.6s ease" }}>
             {/* Hero */}
             <section style={{ textAlign: "center", padding: "60px 0 50px" }}>
@@ -538,7 +563,7 @@ export default function InternNestMVP() {
         )}
 
         {/* ═══════════════════════ INTAKE FORM ═══════════════════════ */}
-        {step === "form" && (
+        {mode === "quiz" && step === "form" && (
           <div style={{ padding: "32px 0 60px", animation: "fadeSlideUp 0.5s ease" }}>
             <div style={{ textAlign: "center", marginBottom: 40 }}>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 400 }}>
@@ -709,7 +734,7 @@ export default function InternNestMVP() {
         )}
 
         {/* ═══════════════════════ RESULTS ═══════════════════════ */}
-        {step === "results" && cityData && (
+        {mode === "quiz" && step === "results" && cityData && (
           <div style={{ padding: "32px 0 60px", animation: "fadeSlideUp 0.5s ease" }}>
             <div style={{ textAlign: "center", marginBottom: 40 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: accentColor, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12, fontFamily: "var(--font-body)" }}>
