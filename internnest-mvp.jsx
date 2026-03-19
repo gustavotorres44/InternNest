@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+"use client";
+import { useState, useRef } from "react";
 
 // ─── NEIGHBORHOOD DATA (ATL & NYC) ───
 const NEIGHBORHOODS = {
