@@ -1,12 +1,13 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import InternHub from "./intern-hub-mvp.jsx";
 
-import { FALLBACK_NEIGHBORHOODS as NEIGHBORHOODS } from "./lib/fallback-data";
+import { FALLBACK_NEIGHBORHOODS } from "./lib/fallback-data";
+import { getNeighborhoods } from "./lib/data";
 
 // ─── SCORING ALGORITHM ───
-function scoreNeighborhoods(city, priorities, industry, budget) {
-  const data = NEIGHBORHOODS[city];
+function scoreNeighborhoods(city, priorities, industry, budget, neighborhoodData) {
+  const data = neighborhoodData[city];
   if (!data) return [];
 
   const weights = { commute: 0.33, cost: 0.33, safety: 0.33 };
@@ -153,6 +154,21 @@ const NeighborhoodCard = ({ n, rank, isTop }) => (
 
 // ─── MAIN APP ───
 export default function InternNestMVP() {
+  const [neighborhoodData, setNeighborhoodData] = useState(FALLBACK_NEIGHBORHOODS);
+
+  useEffect(() => {
+    async function loadData() {
+      const atlNbs = await getNeighborhoods('atl');
+      const nycNbs = await getNeighborhoods('nyc');
+      setNeighborhoodData(prev => ({
+        ...prev,
+        atl: { ...prev.atl, neighborhoods: atlNbs.length > 0 ? atlNbs : prev.atl.neighborhoods },
+        nyc: { ...prev.nyc, neighborhoods: nycNbs.length > 0 ? nycNbs : prev.nyc.neighborhoods },
+      }));
+    }
+    loadData();
+  }, []);
+
   const [mode, setMode] = useState("quiz"); // quiz | explore
   const [step, setStep] = useState("landing"); // landing | form | results | feedback
   const [formData, setFormData] = useState({
@@ -183,7 +199,8 @@ export default function InternNestMVP() {
       formData.city,
       formData.priorities,
       formData.industry,
-      formData.budget
+      formData.budget,
+      neighborhoodData
     );
     setResults(ranked);
     setStep("results");
@@ -191,7 +208,7 @@ export default function InternNestMVP() {
   };
 
   const accentColor = formData.city === "nyc" ? "#4ECDC4" : formData.city === "atl" ? "#E8871E" : "#6C63FF";
-  const cityData = NEIGHBORHOODS[formData.city];
+  const cityData = neighborhoodData[formData.city];
 
   const inputStyle = {
     width: "100%", padding: "14px 18px", borderRadius: 14,

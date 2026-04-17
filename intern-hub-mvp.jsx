@@ -7,6 +7,7 @@ import {
   FALLBACK_TRANSPORT as TRANSPORT,
   FALLBACK_INTEREST_GROUPS as INTEREST_GROUPS
 } from "./lib/fallback-data";
+import { getCities, getListings, getTransport, getInterestGroups } from "./lib/data";
 
 // --- Components ---
 
@@ -237,7 +238,39 @@ const GroupCard = ({ g, index, cityColor }) => (
 // --- Main App ---
 
 export default function InternHub() {
-  const [selectedCity, setSelectedCity] = useState(CITIES[0]);
+  const [citiesData, setCitiesData] = useState(CITIES);
+  const [listingsData, setListingsData] = useState(LISTINGS);
+  const [transportData, setTransportData] = useState(TRANSPORT);
+  const [interestGroupsData, setInterestGroupsData] = useState(INTEREST_GROUPS);
+
+  const [selectedCity, setSelectedCity] = useState(citiesData[0]);
+
+  useEffect(() => {
+    async function loadCities() {
+      const fetchedCities = await getCities();
+      if (fetchedCities.length > 0) {
+        setCitiesData(fetchedCities);
+        setSelectedCity(prev => fetchedCities.find(c => c.id === prev.id) || fetchedCities[0]);
+      }
+    }
+    loadCities();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCity) return;
+    async function loadCityData() {
+      const cid = selectedCity.id;
+      const lData = await getListings(cid);
+      const tData = await getTransport(cid);
+      const gData = await getInterestGroups(cid);
+      
+      setListingsData(prev => ({ ...prev, [cid]: lData.length > 0 ? lData : prev[cid] }));
+      setTransportData(prev => ({ ...prev, [cid]: tData.length > 0 ? tData : prev[cid] }));
+      setInterestGroupsData(prev => ({ ...prev, [cid]: gData.length > 0 ? gData : prev[cid] }));
+    }
+    loadCityData();
+  }, [selectedCity.id]);
+
   const [activeTab, setActiveTab] = useState("housing");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -249,7 +282,7 @@ export default function InternHub() {
     { id: "community", label: "Community", icon: "👥" },
   ];
 
-  const listings = LISTINGS[selectedCity.id] || [];
+  const listings = listingsData[selectedCity.id] || [];
   const filteredListings = listings.filter((l) => {
     const matchesFilter = filter === "All" || l.type === filter;
     const matchesSearch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -399,7 +432,7 @@ export default function InternHub() {
             display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8,
             WebkitOverflowScrolling: "touch",
           }}>
-            {CITIES.map((city, i) => (
+            {citiesData.map((city, i) => (
               <CityCard
                 key={city.id}
                 city={city}
@@ -541,7 +574,7 @@ export default function InternHub() {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {(TRANSPORT[selectedCity.id] || []).map((t, i) => (
+              {(transportData[selectedCity.id] || []).map((t, i) => (
                 <TransportCard key={t.mode} t={t} index={i} cityColor={selectedCity.color} />
               ))}
             </div>
@@ -560,7 +593,7 @@ export default function InternHub() {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {(INTEREST_GROUPS[selectedCity.id] || []).map((g, i) => (
+              {(interestGroupsData[selectedCity.id] || []).map((g, i) => (
                 <GroupCard key={g.name} g={g} index={i} cityColor={selectedCity.color} />
               ))}
             </div>
