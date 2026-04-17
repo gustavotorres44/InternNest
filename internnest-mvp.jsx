@@ -1,182 +1,13 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import InternHub from "./intern-hub-mvp.jsx";
 
-// ─── NEIGHBORHOOD DATA (ATL & NYC) ───
-const NEIGHBORHOODS = {
-  atl: {
-    city: "Atlanta",
-    emoji: "🍑",
-    slackLink: "https://join.slack.com/t/internnest-atl",
-    neighborhoods: [
-      {
-        name: "Midtown",
-        vibe: "Urban core, walkable, arts & dining",
-        avgRent: 1350,
-        commuteScore: 9,
-        safetyScore: 8,
-        costScore: 6,
-        transitNotes: "MARTA Gold/Red lines, walkable to most offices",
-        bestFor: ["Tech", "Consulting", "Finance"],
-        buildings: ["The Byron on Peachtree", "Modera Midtown", "Alexan on 8th"],
-        walkability: 82,
-        highlight: "Walking distance to Piedmont Park & Colony Square",
-        color: "#E8871E",
-      },
-      {
-        name: "Buckhead",
-        vibe: "Upscale, suburban feel, shopping & nightlife",
-        avgRent: 1550,
-        commuteScore: 7,
-        safetyScore: 8,
-        costScore: 5,
-        transitNotes: "MARTA Buckhead station, car helpful for some areas",
-        bestFor: ["Finance", "Consulting", "Healthcare"],
-        buildings: ["The Residence Buckhead", "Hanover Buckhead Village", "AMLI 3464"],
-        walkability: 64,
-        highlight: "Near Lenox Square & Phipps Plaza",
-        color: "#C4A35A",
-      },
-      {
-        name: "Old Fourth Ward / Poncey-Highland",
-        vibe: "Trendy, Beltline access, craft food & bar scene",
-        avgRent: 1250,
-        commuteScore: 7,
-        safetyScore: 7,
-        costScore: 7,
-        transitNotes: "Beltline Eastside Trail, bus routes, bikeable",
-        bestFor: ["Startups", "Creative", "Tech"],
-        buildings: ["Ponce City Market Flats", "Alexan O4W", "The Mix at Edgewood"],
-        walkability: 78,
-        highlight: "Right on the Beltline — ATL's best feature",
-        color: "#D35D6E",
-      },
-      {
-        name: "West Midtown / Westside",
-        vibe: "Industrial-chic, food halls, emerging tech hub",
-        avgRent: 1400,
-        commuteScore: 6,
-        safetyScore: 7,
-        costScore: 6,
-        transitNotes: "Limited transit, rideshare or bike recommended",
-        bestFor: ["Tech", "Startups", "Media"],
-        buildings: ["The Interlock Residences", "Westside Paper", "Star Metals"],
-        walkability: 60,
-        highlight: "Home to Westside Provisions & tons of food options",
-        color: "#5B8C5A",
-      },
-      {
-        name: "Downtown / South Downtown",
-        vibe: "Budget-friendly, central, revitalizing area",
-        avgRent: 1050,
-        commuteScore: 10,
-        safetyScore: 6,
-        costScore: 9,
-        transitNotes: "MARTA hub — Five Points station, walkable to govt offices",
-        bestFor: ["Government", "Nonprofit", "Legal"],
-        buildings: ["77 12th Street", "The Mitchell", "Artisan at South Downtown"],
-        walkability: 88,
-        highlight: "Most affordable + best transit access in the city",
-        color: "#4A90A4",
-      },
-    ],
-  },
-  nyc: {
-    city: "New York City",
-    emoji: "🗽",
-    slackLink: "https://join.slack.com/t/internnest-nyc",
-    neighborhoods: [
-      {
-        name: "East Village / LES",
-        vibe: "Gritty-cool, nightlife, diverse food scene",
-        avgRent: 2400,
-        commuteScore: 9,
-        safetyScore: 7,
-        costScore: 4,
-        transitNotes: "F, L, 6 trains — quick to Midtown & FiDi",
-        bestFor: ["Finance", "Tech", "Media"],
-        buildings: ["The Ludlow", "Stuy Town (sublease)", "Essex Crossing"],
-        walkability: 95,
-        highlight: "Most fun neighborhood for a summer in your 20s",
-        color: "#FF6B6B",
-      },
-      {
-        name: "Brooklyn Heights / DUMBO",
-        vibe: "Quiet, beautiful, waterfront views of Manhattan",
-        avgRent: 2700,
-        commuteScore: 8,
-        safetyScore: 9,
-        costScore: 3,
-        transitNotes: "2/3, A/C trains — 15 min to FiDi, ferry to Midtown",
-        bestFor: ["Finance", "Tech", "Consulting"],
-        buildings: ["Brooklyner", "The Pierrepont", "1 John Street"],
-        walkability: 90,
-        highlight: "Brooklyn Bridge Park is your backyard",
-        color: "#4ECDC4",
-      },
-      {
-        name: "Williamsburg",
-        vibe: "Trendy, brunch capital, young professional hub",
-        avgRent: 2500,
-        commuteScore: 7,
-        safetyScore: 8,
-        costScore: 4,
-        transitNotes: "L train to Union Square (14 min), ferry to Midtown",
-        bestFor: ["Tech", "Startups", "Creative"],
-        buildings: ["The Edge", "325 Kent", "Schaefer Landing"],
-        walkability: 88,
-        highlight: "Best rooftop and outdoor bar scene in NYC",
-        color: "#A8E6CE",
-      },
-      {
-        name: "Harlem",
-        vibe: "Cultural richness, best value in Manhattan",
-        avgRent: 1700,
-        commuteScore: 7,
-        safetyScore: 7,
-        costScore: 8,
-        transitNotes: "A/B/C/D, 2/3 trains — 20 min to Midtown",
-        bestFor: ["Healthcare", "Nonprofit", "Education", "Consulting"],
-        buildings: ["The Rennie", "One Museum Mile", "Victoria Theater Condos"],
-        walkability: 85,
-        highlight: "Real NYC culture — best food per dollar in the city",
-        color: "#FFD93D",
-      },
-      {
-        name: "Murray Hill / Kips Bay",
-        vibe: "Classic young professional, convenient, low-key",
-        avgRent: 2200,
-        commuteScore: 9,
-        safetyScore: 8,
-        costScore: 5,
-        transitNotes: "6 train, close to Grand Central — easy commute anywhere",
-        bestFor: ["Finance", "Consulting", "Healthcare"],
-        buildings: ["Kips Bay Court", "Murray Hill Tower", "The Horizon"],
-        walkability: 92,
-        highlight: "Easiest commute to most Midtown offices",
-        color: "#7B68EE",
-      },
-      {
-        name: "Bushwick / Bed-Stuy",
-        vibe: "Artsy, affordable, community-driven",
-        avgRent: 1500,
-        commuteScore: 6,
-        safetyScore: 6,
-        costScore: 9,
-        transitNotes: "L, J/M/Z, A/C trains — 30-40 min to Midtown",
-        bestFor: ["Startups", "Creative", "Tech"],
-        buildings: ["The Rheingold", "Denizen Bushwick", "1000 Dean"],
-        walkability: 80,
-        highlight: "Most affordable option with tons of character",
-        color: "#F4845F",
-      },
-    ],
-  },
-};
+import { FALLBACK_NEIGHBORHOODS } from "./lib/fallback-data";
+import { getNeighborhoods } from "./lib/data";
 
 // ─── SCORING ALGORITHM ───
-function scoreNeighborhoods(city, priorities, industry, budget) {
-  const data = NEIGHBORHOODS[city];
+function scoreNeighborhoods(city, priorities, industry, budget, neighborhoodData) {
+  const data = neighborhoodData[city];
   if (!data) return [];
 
   const weights = { commute: 0.33, cost: 0.33, safety: 0.33 };
@@ -323,6 +154,21 @@ const NeighborhoodCard = ({ n, rank, isTop }) => (
 
 // ─── MAIN APP ───
 export default function InternNestMVP() {
+  const [neighborhoodData, setNeighborhoodData] = useState(FALLBACK_NEIGHBORHOODS);
+
+  useEffect(() => {
+    async function loadData() {
+      const atlNbs = await getNeighborhoods('atl');
+      const nycNbs = await getNeighborhoods('nyc');
+      setNeighborhoodData(prev => ({
+        ...prev,
+        atl: { ...prev.atl, neighborhoods: atlNbs.length > 0 ? atlNbs : prev.atl.neighborhoods },
+        nyc: { ...prev.nyc, neighborhoods: nycNbs.length > 0 ? nycNbs : prev.nyc.neighborhoods },
+      }));
+    }
+    loadData();
+  }, []);
+
   const [mode, setMode] = useState("quiz"); // quiz | explore
   const [step, setStep] = useState("landing"); // landing | form | results | feedback
   const [formData, setFormData] = useState({
@@ -353,7 +199,8 @@ export default function InternNestMVP() {
       formData.city,
       formData.priorities,
       formData.industry,
-      formData.budget
+      formData.budget,
+      neighborhoodData
     );
     setResults(ranked);
     setStep("results");
@@ -361,7 +208,7 @@ export default function InternNestMVP() {
   };
 
   const accentColor = formData.city === "nyc" ? "#4ECDC4" : formData.city === "atl" ? "#E8871E" : "#6C63FF";
-  const cityData = NEIGHBORHOODS[formData.city];
+  const cityData = neighborhoodData[formData.city];
 
   const inputStyle = {
     width: "100%", padding: "14px 18px", borderRadius: 14,
