@@ -9,7 +9,8 @@ import {
 } from "./lib/fallback-data";
 import { getCities, getListings, getTransport, getInterestGroups } from "./lib/data";
 
-// --- Components ---
+// Sub-components use CSS vars (var(--*)) for all neutral colors.
+// Variables are injected by the main component's <style> block and cascade through the DOM.
 
 const CityCard = ({ city, isSelected, onClick, index }) => (
   <div
@@ -18,24 +19,24 @@ const CityCard = ({ city, isSelected, onClick, index }) => (
       padding: "16px 20px",
       borderRadius: 16,
       cursor: "pointer",
-      background: isSelected ? city.color : "rgba(255,255,255,0.04)",
-      border: isSelected ? "2px solid transparent" : "2px solid rgba(255,255,255,0.08)",
+      background: isSelected ? city.color : "var(--surface)",
+      border: isSelected ? "2px solid transparent" : "2px solid var(--border)",
       transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
       transform: isSelected ? "scale(1.03)" : "scale(1)",
       display: "flex",
       alignItems: "center",
       gap: 12,
-      color: isSelected ? "#fff" : "rgba(255,255,255,0.7)",
+      color: isSelected ? "#fff" : "var(--text-muted)",
       animation: `fadeSlideUp 0.5s ease ${index * 0.06}s both`,
       minWidth: "fit-content",
     }}
   >
     <span style={{ fontSize: 24 }}>{city.emoji}</span>
     <div>
-      <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, fontWeight: 400, color: isSelected ? "#fff" : "rgba(255,255,255,0.9)" }}>
+      <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, fontWeight: 400, color: isSelected ? "#fff" : "var(--text)" }}>
         {city.name}
       </div>
-      <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2, fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ fontSize: 12, opacity: 0.65, marginTop: 2, fontFamily: "'DM Sans', sans-serif" }}>
         {city.listings} listings
       </div>
     </div>
@@ -45,10 +46,10 @@ const CityCard = ({ city, isSelected, onClick, index }) => (
 const ListingCard = ({ listing, cityColor, index }) => (
   <div
     style={{
-      background: "rgba(255,255,255,0.04)",
+      background: "var(--surface)",
       borderRadius: 20,
       padding: 24,
-      border: "1px solid rgba(255,255,255,0.08)",
+      border: "1px solid var(--border)",
       animation: `fadeSlideUp 0.5s ease ${index * 0.08}s both`,
       transition: "all 0.3s ease",
       display: "flex",
@@ -57,11 +58,11 @@ const ListingCard = ({ listing, cityColor, index }) => (
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.border = `1px solid ${cityColor}40`;
-      e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+      e.currentTarget.style.background = "var(--surface-hover)";
     }}
     onMouseLeave={(e) => {
-      e.currentTarget.style.border = "1px solid rgba(255,255,255,0.08)";
-      e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+      e.currentTarget.style.border = "1px solid var(--border)";
+      e.currentTarget.style.background = "var(--surface)";
     }}
   >
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -73,10 +74,10 @@ const ListingCard = ({ listing, cityColor, index }) => (
           {listing.img}
         </div>
         <div>
-          <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 19, color: "#fff" }}>
+          <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 19, color: "var(--text)" }}>
             {listing.title}
           </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
             {listing.type} · {listing.dates}
           </div>
         </div>
@@ -85,15 +86,15 @@ const ListingCard = ({ listing, cityColor, index }) => (
         <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 700, color: cityColor }}>
           ${listing.price}
         </div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>/month</div>
+        <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month</div>
       </div>
     </div>
 
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {listing.amenities.map((a) => (
         <span key={a} style={{
-          padding: "5px 12px", borderRadius: 100, background: "rgba(255,255,255,0.06)",
-          fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'DM Sans', sans-serif",
+          padding: "5px 12px", borderRadius: 100, background: "var(--surface-hover)",
+          fontSize: 12, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif",
         }}>
           {a}
         </span>
@@ -102,7 +103,7 @@ const ListingCard = ({ listing, cityColor, index }) => (
 
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
-      borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 14, marginTop: 2,
+      borderTop: "1px solid var(--border-subtle)", paddingTop: 14, marginTop: 2,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{
@@ -113,10 +114,10 @@ const ListingCard = ({ listing, cityColor, index }) => (
           {listing.poster.charAt(0)}
         </div>
         <div>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontFamily: "'DM Sans', sans-serif" }}>
+          <span style={{ fontSize: 13, color: "var(--text)", fontFamily: "'DM Sans', sans-serif" }}>
             {listing.poster}
           </span>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginLeft: 6 }}>
+          <span style={{ fontSize: 12, color: "var(--text-subtle)", marginLeft: 6 }}>
             @ {listing.posterCompany}
           </span>
         </div>
@@ -166,18 +167,18 @@ const ListingCard = ({ listing, cityColor, index }) => (
 const TransportCard = ({ t, index, cityColor }) => (
   <div
     style={{
-      background: "rgba(255,255,255,0.04)",
+      background: "var(--surface)",
       borderRadius: 16,
       padding: 20,
-      border: "1px solid rgba(255,255,255,0.08)",
+      border: "1px solid var(--border)",
       animation: `fadeSlideUp 0.4s ease ${index * 0.07}s both`,
       display: "flex",
       gap: 16,
       alignItems: "flex-start",
       transition: "all 0.2s ease",
     }}
-    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+    onMouseEnter={(e) => e.currentTarget.style.background = "var(--surface-hover)"}
+    onMouseLeave={(e) => e.currentTarget.style.background = "var(--surface)"}
   >
     <div style={{
       width: 48, height: 48, borderRadius: 14, background: `${cityColor}18`,
@@ -187,7 +188,7 @@ const TransportCard = ({ t, index, cityColor }) => (
     </div>
     <div style={{ flex: 1 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, color: "#fff" }}>{t.mode}</span>
+        <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, color: "var(--text)" }}>{t.mode}</span>
         <span style={{
           padding: "4px 12px", borderRadius: 100, background: `${cityColor}20`,
           color: cityColor, fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
@@ -195,7 +196,7 @@ const TransportCard = ({ t, index, cityColor }) => (
           {t.cost}
         </span>
       </div>
-      <div style={{ fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, marginTop: 6, fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, marginTop: 6, fontFamily: "'DM Sans', sans-serif" }}>
         {t.desc}
       </div>
       <div style={{
@@ -211,10 +212,10 @@ const TransportCard = ({ t, index, cityColor }) => (
 const GroupCard = ({ g, index, cityColor }) => (
   <div
     style={{
-      background: "rgba(255,255,255,0.04)",
+      background: "var(--surface)",
       borderRadius: 16,
       padding: 18,
-      border: "1px solid rgba(255,255,255,0.08)",
+      border: "1px solid var(--border)",
       animation: `fadeSlideUp 0.4s ease ${index * 0.07}s both`,
       display: "flex",
       justifyContent: "space-between",
@@ -222,8 +223,8 @@ const GroupCard = ({ g, index, cityColor }) => (
       transition: "all 0.2s ease",
       cursor: "pointer",
     }}
-    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-    onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+    onMouseEnter={(e) => e.currentTarget.style.background = "var(--surface-hover)"}
+    onMouseLeave={(e) => e.currentTarget.style.background = "var(--surface)"}
   >
     <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
       <div style={{
@@ -233,8 +234,8 @@ const GroupCard = ({ g, index, cityColor }) => (
         {g.emoji}
       </div>
       <div>
-        <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 17, color: "#fff" }}>{g.name}</div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>
+        <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 17, color: "var(--text)" }}>{g.name}</div>
+        <div style={{ fontSize: 13, color: "var(--text-subtle)", fontFamily: "'DM Sans', sans-serif", marginTop: 2 }}>
           {g.members} members · {g.category}
         </div>
       </div>
@@ -282,7 +283,7 @@ export default function InternHub() {
       const lData = await getListings(cid);
       const tData = await getTransport(cid);
       const gData = await getInterestGroups(cid);
-      
+
       setListingsData(prev => ({ ...prev, [cid]: lData.length > 0 ? lData : prev[cid] }));
       setTransportData(prev => ({ ...prev, [cid]: tData.length > 0 ? tData : prev[cid] }));
       setInterestGroupsData(prev => ({ ...prev, [cid]: gData.length > 0 ? gData : prev[cid] }));
@@ -293,7 +294,9 @@ export default function InternHub() {
   const [activeTab, setActiveTab] = useState("housing");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [priceFilter, setPriceFilter] = useState("any");
+  const [transportFilter, setTransportFilter] = useState("All");
+  const [darkMode, setDarkMode] = useState(true);
 
   const tabs = [
     { id: "housing", label: "Housing", icon: "🏠" },
@@ -303,22 +306,44 @@ export default function InternHub() {
 
   const listings = listingsData[selectedCity.id] || [];
   const filteredListings = listings.filter((l) => {
-    const matchesFilter = filter === "All" || l.type === filter;
+    const matchesType = filter === "All" || l.type === filter;
     const matchesSearch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesPrice =
+      priceFilter === "any" ||
+      (priceFilter === "under1200" && l.price <= 1200) ||
+      (priceFilter === "under1500" && l.price <= 1500) ||
+      (priceFilter === "1500-2000" && l.price >= 1500 && l.price <= 2000) ||
+      (priceFilter === "2000-2500" && l.price >= 2000 && l.price <= 2500) ||
+      (priceFilter === "over2500" && l.price >= 2500);
+    const matchesTransport = transportFilter === "All" || !l.transport || l.transport === transportFilter;
+    return matchesType && matchesSearch && matchesPrice && matchesTransport;
   });
 
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0A0A0F",
-      color: "#fff",
+      background: "var(--bg)",
+      color: "var(--text)",
       fontFamily: "'DM Sans', sans-serif",
       position: "relative",
       overflow: "hidden",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+
+        :root {
+          --bg: ${darkMode ? "#0A0A0F" : "#F2F2F8"};
+          --text: ${darkMode ? "#ffffff" : "#111111"};
+          --text-med: ${darkMode ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.75)"};
+          --text-muted: ${darkMode ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"};
+          --text-subtle: ${darkMode ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.4)"};
+          --surface: ${darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"};
+          --surface-hover: ${darkMode ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.09)"};
+          --border: ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)"};
+          --border-subtle: ${darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)"};
+          --input-bg: ${darkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"};
+          --input-border: ${darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.13)"};
+        }
 
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(16px); }
@@ -343,9 +368,11 @@ export default function InternHub() {
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: ${darkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.2)"}; border-radius: 10px; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        select option { background: ${darkMode ? "#1a1a2e" : "#ffffff"}; color: ${darkMode ? "#fff" : "#111"}; }
+        input::placeholder { color: var(--text-muted); }
       `}</style>
 
       {/* Ambient background */}
@@ -382,15 +409,28 @@ export default function InternHub() {
             </div>
             <span style={{
               fontFamily: "'Instrument Serif', Georgia, serif",
-              fontSize: 24, letterSpacing: "-0.02em",
+              fontSize: 24, letterSpacing: "-0.02em", color: "var(--text)",
             }}>
               InternNest
             </span>
           </div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              style={{
+                width: 38, height: 38, borderRadius: 100,
+                border: "1px solid var(--border)",
+                background: "var(--surface)", fontSize: 17,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {darkMode ? "☀️" : "🌙"}
+            </button>
             <button style={{
-              padding: "10px 22px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.15)",
-              background: "transparent", color: "#fff", fontSize: 14, fontWeight: 500,
+              padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
+              background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
               cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
             }}>
               Log in
@@ -426,6 +466,7 @@ export default function InternHub() {
             letterSpacing: "-0.02em",
             maxWidth: 700,
             margin: "0 auto",
+            color: "var(--text)",
           }}>
             Your city.{" "}
             <span style={{
@@ -438,7 +479,7 @@ export default function InternHub() {
             <br />Your people.
           </h1>
           <p style={{
-            fontSize: 17, color: "rgba(255,255,255,0.5)", marginTop: 20,
+            fontSize: 17, color: "var(--text-muted)", marginTop: 20,
             maxWidth: 500, margin: "20px auto 0", lineHeight: 1.6,
           }}>
             Find subleases, navigate transit, and connect with fellow interns — all in one place.
@@ -456,7 +497,13 @@ export default function InternHub() {
                 key={city.id}
                 city={city}
                 isSelected={selectedCity.id === city.id}
-                onClick={() => { setSelectedCity(city); setFilter("All"); setSearchQuery(""); }}
+                onClick={() => {
+                  setSelectedCity(city);
+                  setFilter("All");
+                  setSearchQuery("");
+                  setPriceFilter("any");
+                  setTransportFilter("All");
+                }}
                 index={i}
               />
             ))}
@@ -474,13 +521,13 @@ export default function InternHub() {
             { label: "Groups", value: selectedCity.groups, icon: "👥" },
           ].map((stat) => (
             <div key={stat.label} style={{
-              flex: 1, minWidth: 140, background: "rgba(255,255,255,0.04)", borderRadius: 16,
-              padding: "16px 20px", border: "1px solid rgba(255,255,255,0.06)",
+              flex: 1, minWidth: 140, background: "var(--surface)", borderRadius: 16,
+              padding: "16px 20px", border: "1px solid var(--border-subtle)",
               display: "flex", alignItems: "center", gap: 12,
             }}>
               <span style={{ fontSize: 22 }}>{stat.icon}</span>
               <div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>{stat.label}</div>
+                <div style={{ fontSize: 12, color: "var(--text-subtle)", marginBottom: 2 }}>{stat.label}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: selectedCity.color, transition: "color 0.5s ease" }}>{stat.value}</div>
               </div>
             </div>
@@ -490,8 +537,8 @@ export default function InternHub() {
         {/* Tabs */}
         <div style={{
           display: "flex", gap: 6, marginBottom: 28,
-          background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 5,
-          border: "1px solid rgba(255,255,255,0.06)", width: "fit-content",
+          background: "var(--surface)", borderRadius: 16, padding: 5,
+          border: "1px solid var(--border-subtle)", width: "fit-content",
         }}>
           {tabs.map((tab) => (
             <button
@@ -500,7 +547,7 @@ export default function InternHub() {
               style={{
                 padding: "10px 22px", borderRadius: 12, border: "none",
                 background: activeTab === tab.id ? selectedCity.color : "transparent",
-                color: activeTab === tab.id ? "#fff" : "rgba(255,255,255,0.5)",
+                color: activeTab === tab.id ? "#fff" : "var(--text-muted)",
                 fontSize: 14, fontWeight: 600, cursor: "pointer",
                 fontFamily: "'DM Sans', sans-serif",
                 transition: "all 0.3s ease",
@@ -515,15 +562,16 @@ export default function InternHub() {
         {/* === HOUSING TAB === */}
         {activeTab === "housing" && (
           <section key={selectedCity.id + "-housing"}>
-            <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
+            {/* Row 1: search + type filter */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
               <input
                 type="text"
                 placeholder={`Search in ${selectedCity.name}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  padding: "11px 20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: 14,
+                  padding: "11px 20px", borderRadius: 12, border: "1px solid var(--input-border)",
+                  background: "var(--input-bg)", color: "var(--text)", fontSize: 14,
                   fontFamily: "'DM Sans', sans-serif", outline: "none", flex: 1, minWidth: 200,
                 }}
               />
@@ -533,9 +581,9 @@ export default function InternHub() {
                   onClick={() => setFilter(f)}
                   style={{
                     padding: "9px 18px", borderRadius: 100,
-                    border: filter === f ? "none" : "1px solid rgba(255,255,255,0.1)",
+                    border: filter === f ? "none" : "1px solid var(--input-border)",
                     background: filter === f ? `${selectedCity.color}25` : "transparent",
-                    color: filter === f ? selectedCity.color : "rgba(255,255,255,0.5)",
+                    color: filter === f ? selectedCity.color : "var(--text-muted)",
                     fontSize: 13, fontWeight: 600, cursor: "pointer",
                     fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
                   }}
@@ -544,13 +592,63 @@ export default function InternHub() {
                 </button>
               ))}
             </div>
+
+            {/* Row 2: price + transport filters */}
+            <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
+              <select
+                value={priceFilter}
+                onChange={(e) => setPriceFilter(e.target.value)}
+                style={{
+                  padding: "9px 36px 9px 16px", borderRadius: 100,
+                  border: priceFilter !== "any" ? "none" : "1px solid var(--input-border)",
+                  background: priceFilter !== "any" ? `${selectedCity.color}25` : "var(--input-bg)",
+                  color: priceFilter !== "any" ? selectedCity.color : "var(--text-muted)",
+                  fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                  outline: "none", cursor: "pointer", appearance: "none",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 14px center",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <option value="any">💰 Any price</option>
+                <option value="under1200">Under $1,200</option>
+                <option value="under1500">Under $1,500</option>
+                <option value="1500-2000">$1,500 – $2,000</option>
+                <option value="2000-2500">$2,000 – $2,500</option>
+                <option value="over2500">$2,500+</option>
+              </select>
+              {[
+                { id: "All", label: "Any transit" },
+                { id: "Walk", label: "🚶 Walk" },
+                { id: "Bike", label: "🚲 Bike" },
+                { id: "Public Transit", label: "🚇 Public Transit" },
+                { id: "Car", label: "🚗 Car" },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTransportFilter(t.id)}
+                  style={{
+                    padding: "9px 18px", borderRadius: 100,
+                    border: transportFilter === t.id ? "none" : "1px solid var(--input-border)",
+                    background: transportFilter === t.id ? `${selectedCity.color}25` : "transparent",
+                    color: transportFilter === t.id ? selectedCity.color : "var(--text-muted)",
+                    fontSize: 13, fontWeight: 600, cursor: "pointer",
+                    fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
+                  }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {filteredListings.length > 0 ? filteredListings.map((l, i) => (
                 <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} />
               )) : (
                 <div style={{
-                  textAlign: "center", padding: 60, color: "rgba(255,255,255,0.3)",
-                  fontSize: 16, borderRadius: 20, border: "1px dashed rgba(255,255,255,0.1)",
+                  textAlign: "center", padding: 60, color: "var(--text-muted)",
+                  fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
                 }}>
                   No listings match your search. Try adjusting filters.
                 </div>
@@ -564,10 +662,10 @@ export default function InternHub() {
               border: `1px solid ${selectedCity.color}25`,
               textAlign: "center",
             }}>
-              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8 }}>
+              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8, color: "var(--text)" }}>
                 Subleasing your place this summer?
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 18 }}>
+              <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                 Help fellow interns find housing in {selectedCity.name}
               </div>
               <button style={{
@@ -588,7 +686,7 @@ export default function InternHub() {
               marginBottom: 24, padding: 20, borderRadius: 16,
               background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
             }}>
-              <span style={{ fontSize: 15, color: "rgba(255,255,255,0.7)" }}>
+              <span style={{ fontSize: 15, color: "var(--text-med)" }}>
                 🗺️ Getting around <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> — curated transit tips from past interns
               </span>
             </div>
@@ -607,7 +705,7 @@ export default function InternHub() {
               marginBottom: 24, padding: 20, borderRadius: 16,
               background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
             }}>
-              <span style={{ fontSize: 15, color: "rgba(255,255,255,0.7)" }}>
+              <span style={{ fontSize: 15, color: "var(--text-med)" }}>
                 🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> this summer
               </span>
             </div>
@@ -623,10 +721,10 @@ export default function InternHub() {
               border: `1px solid ${selectedCity.color}25`,
               textAlign: "center",
             }}>
-              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8 }}>
+              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8, color: "var(--text)" }}>
                 Don't see your vibe?
               </div>
-              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 18 }}>
+              <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                 Start a new group and find your people
               </div>
               <button style={{
@@ -643,7 +741,7 @@ export default function InternHub() {
         {/* Footer */}
         <footer style={{
           marginTop: 64, paddingTop: 32, paddingBottom: 40,
-          borderTop: "1px solid rgba(255,255,255,0.06)",
+          borderTop: "1px solid var(--border-subtle)",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           flexWrap: "wrap", gap: 16,
         }}>
@@ -655,9 +753,9 @@ export default function InternHub() {
             }}>
               ⌂
             </div>
-            <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18 }}>InternNest</span>
+            <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, color: "var(--text)" }}>InternNest</span>
           </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>
+          <div style={{ fontSize: 13, color: "var(--text-subtle)" }}>
             © 2026 InternNest · Built for interns, by interns
           </div>
         </footer>

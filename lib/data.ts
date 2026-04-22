@@ -94,6 +94,7 @@ export async function getListings(cityId: string): Promise<Listing[]> {
       verified: row.verified,
       img: row.img,
       link: row.link ?? undefined,
+      transport: row.transport ?? undefined,
     }));
   } catch (err) {
     console.warn(`Failed to fetch listings for city ${cityId}:`, err);

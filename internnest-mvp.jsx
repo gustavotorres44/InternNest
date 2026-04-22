@@ -169,7 +169,7 @@ export default function InternNestMVP() {
     loadData();
   }, []);
 
-  const [mode, setMode] = useState("quiz"); // quiz | explore
+  const [mode, setMode] = useState("explore"); // quiz | explore
   const [step, setStep] = useState("landing"); // landing | form | results | feedback
   const [formData, setFormData] = useState({
     name: "", email: "", school: "", city: "", company: "",
@@ -223,22 +223,7 @@ export default function InternNestMVP() {
     letterSpacing: "0.03em",
   };
 
-  if (mode === "explore") return (
-    <div>
-      {/* Floating back button */}
-      <div style={{ position: "fixed", top: 20, left: 20, zIndex: 1000 }}>
-        <button onClick={() => setMode("quiz")} style={{
-          padding: "9px 20px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.15)",
-          background: "rgba(10,10,15,0.85)", backdropFilter: "blur(12px)",
-          color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600,
-          cursor: "pointer", fontFamily: "var(--font-body)",
-        }}>
-          ← Get My Match
-        </button>
-      </div>
-      <InternHub />
-    </div>
-  );
+  if (mode === "explore") return <InternHub />;
 
   return (
     <div style={{
@@ -310,23 +295,6 @@ export default function InternNestMVP() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Mode toggle */}
-            <div style={{
-              display: "flex", background: "rgba(255,255,255,0.06)", borderRadius: 100,
-              padding: 4, border: "1px solid rgba(255,255,255,0.08)",
-            }}>
-              {[{ id: "quiz", label: "Get My Match" }, { id: "explore", label: "Explore All Cities" }].map((m) => (
-                <button key={m.id} onClick={() => setMode(m.id)} style={{
-                  padding: "7px 16px", borderRadius: 100, border: "none", fontSize: 12,
-                  fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-body)",
-                  background: mode === m.id ? accentColor : "transparent",
-                  color: mode === m.id ? "#fff" : "rgba(255,255,255,0.5)",
-                  transition: "all 0.2s ease",
-                }}>
-                  {m.label}
-                </button>
-              ))}
-            </div>
             {mode === "quiz" && step !== "landing" && (
               <button onClick={() => { setStep("landing"); setResults([]); }} style={{
                 padding: "8px 18px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.12)",
