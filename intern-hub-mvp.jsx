@@ -129,17 +129,36 @@ const ListingCard = ({ listing, cityColor, index }) => (
           </span>
         )}
       </div>
-      <button
-        style={{
-          padding: "8px 20px", borderRadius: 100, border: `1.5px solid ${cityColor}`,
-          background: "transparent", color: cityColor, fontSize: 13, fontWeight: 600,
-          cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => { e.target.style.background = cityColor; e.target.style.color = "#fff"; }}
-        onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = cityColor; }}
-      >
-        Contact
-      </button>
+      <div style={{ display: "flex", gap: 8 }}>
+        {listing.link && (
+          <a
+            href={listing.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: "8px 20px", borderRadius: 100, border: "none",
+              background: `${cityColor}20`, color: cityColor, fontSize: 13, fontWeight: 600,
+              cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
+              textDecoration: "none", display: "inline-flex", alignItems: "center",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = `${cityColor}40`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = `${cityColor}20`; }}
+          >
+            View ↗
+          </a>
+        )}
+        <button
+          style={{
+            padding: "8px 20px", borderRadius: 100, border: `1.5px solid ${cityColor}`,
+            background: "transparent", color: cityColor, fontSize: 13, fontWeight: 600,
+            cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => { e.target.style.background = cityColor; e.target.style.color = "#fff"; }}
+          onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = cityColor; }}
+        >
+          Contact
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -508,7 +527,7 @@ export default function InternHub() {
                   fontFamily: "'DM Sans', sans-serif", outline: "none", flex: 1, minWidth: 200,
                 }}
               />
-              {["All", "Studio", "1 Bedroom", "Shared Room"].map((f) => (
+              {["All", "Studio", "1 Bedroom", "2 Bedroom", "Shared Room"].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}

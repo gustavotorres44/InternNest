@@ -224,19 +224,29 @@ export type Listing = {
   posterCompany: string;
   verified: boolean;
   img: string;
+  link?: string;
 };
 
 export const FALLBACK_LISTINGS: Record<string, Listing[]> = {
   sf: [
-    { id: 1, title: "Sunny Mission Studio", price: 1800, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Laundry", "Furnished"], poster: "Sarah K.", posterCompany: "Google", verified: true, img: "🌻" },
-    { id: 2, title: "SOMA 1BR w/ View", price: 2400, type: "1 Bedroom", dates: "May 15 – Aug 15", amenities: ["WiFi", "Gym", "Parking"], poster: "James L.", posterCompany: "Stripe", verified: true, img: "🏙️" },
-    { id: 3, title: "Shared Apt in Hayes Valley", price: 1400, type: "Shared Room", dates: "Jun 1 – Sep 1", amenities: ["WiFi", "Furnished", "Kitchen"], poster: "Priya M.", posterCompany: "Salesforce", verified: false, img: "🏠" },
-    { id: 4, title: "Modern Flat near Caltrain", price: 2100, type: "1 Bedroom", dates: "Jun 15 – Aug 30", amenities: ["WiFi", "Transit", "Furnished"], poster: "Alex T.", posterCompany: "Meta", verified: true, img: "🚂" },
+    // Celine's Meta HQ search — 1BR near Menlo Park, car commute, ~$2600/mo budget
+    { id: 300, title: "Bay Oak Apartments", price: 2200, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Parking", "Pool", "8 min to Meta"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🌉", link: "https://www.apartments.com/bay-oak-apartments-east-palo-alto-ca/" },
+    { id: 301, title: "Peninsula Park Apartments", price: 2100, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Pool", "10 min to Meta", "East Palo Alto"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🏡", link: "https://www.apartments.com/peninsula-park-apartments-east-palo-alto-ca/" },
+    { id: 302, title: "Stanford Garden Apartments", price: 1986, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Pool", "10 min to Meta", "East Palo Alto"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🎓", link: "https://www.apartments.com/stanford-garden-apartments-east-palo-alto-ca/7dkjl6k/" },
+    { id: 303, title: "Woodland Park", price: 2248, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Gym", "Pool", "10 min to Meta"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🌳", link: "https://www.woodlandparkca.com" },
+    { id: 304, title: "Larklanding", price: 1986, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Pool", "15 min to Meta", "East Palo Alto"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🌿", link: "https://larklanding.live" },
+    { id: 305, title: "Menlo Park Apartments", price: 2295, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Gym", "10 min to Meta", "Menlo Park"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🏢", link: "https://www.apartments.com/menlo-park-apartments-menlopark-ca/s399d87/" },
+    { id: 306, title: "Wildwood Manor Apartments", price: 2045, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Pool", "20 min to Meta", "San Mateo"], poster: "Celine B.", posterCompany: "Meta", verified: false, img: "🏡", link: "https://www.wildwoodmanorapts.com/floor-plans/" },
+    { id: 307, title: "HNE Apartments", price: 2595, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Gym", "18 min to Meta", "Redwood City"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🏘️", link: "https://www.hneapartments.com/listings/detail/439bf6e5-fe90-4f32-8125-a1d7c232e0b1" },
+    { id: 308, title: "3633 Colegrove (Studio)", price: 1945, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "20 min to Meta", "Redwood City"], poster: "Celine B.", posterCompany: "Meta", verified: false, img: "🏠", link: "https://www.apartmenthomeliving.com/redwood-city-ca/apartments-for-rent/cheap" },
+    { id: 309, title: "Tradewinds Surf Apartments", price: 2300, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Parking", "Pool", "20 min to Meta", "Foster City"], poster: "Celine B.", posterCompany: "Meta", verified: true, img: "🏄", link: "https://www.tradewindsaptsca.com/foster-city/tradewind-surf-apartments/floorplans/one-bedroom-one-bath-1004592/" },
   ],
   ny: [
-    { id: 5, title: "East Village Cozy Studio", price: 2500, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Laundry", "AC"], poster: "David R.", posterCompany: "JP Morgan", verified: true, img: "🎭" },
-    { id: 6, title: "Brooklyn Heights 1BR", price: 2800, type: "1 Bedroom", dates: "May 20 – Aug 20", amenities: ["WiFi", "Rooftop", "Doorman"], poster: "Maya J.", posterCompany: "Goldman Sachs", verified: true, img: "🌃" },
-    { id: 7, title: "Midtown Shared Room", price: 1600, type: "Shared Room", dates: "Jun 1 – Aug 15", amenities: ["WiFi", "Gym", "Furnished"], poster: "Chris W.", posterCompany: "McKinsey", verified: false, img: "🗽" },
+    // Keziah's Google NYC search — studio, public transit, ~$2600/mo, near 111 8th Ave (Chelsea)
+    { id: 200, title: "FOUND Study Chelsea", price: 1900, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Furnished", "Utilities Incl.", "Intern-Friendly", "2-5 min to Google NYC"], poster: "Keziah M.", posterCompany: "Google", verified: true, img: "📚", link: "https://www.apartmentfinder.com/Short-Term-Housing/New-York/New-York" },
+    { id: 201, title: "320 W 20th St #15", price: 2650, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Chelsea", "4-7 min to Google NYC"], poster: "Keziah M.", posterCompany: "Google", verified: true, img: "🗽", link: "https://www.rent.com/p/new-york/manhattan-apartments/8thavenue" },
+    { id: 202, title: "144 W 23rd St #11-F", price: 2650, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Chelsea", "5-8 min to Google NYC"], poster: "Keziah M.", posterCompany: "Google", verified: true, img: "🏙️", link: "https://www.rent.com/p/new-york/manhattan-apartments/8thavenue" },
+    { id: 203, title: "21 Chelsea", price: 2950, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Doorman", "Gym", "Chelsea", "3-6 min to Google NYC"], poster: "Keziah M.", posterCompany: "Google", verified: true, img: "🌃", link: "https://www.zillow.com/new-york-ny/short-term-apartments/" },
   ],
   bos: [
     { id: 8, title: "Back Bay Studio", price: 1800, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Furnished"], poster: "Emma S.", posterCompany: "HubSpot", verified: true, img: "📚" },
@@ -247,8 +257,22 @@ export const FALLBACK_LISTINGS: Record<string, Listing[]> = {
     { id: 11, title: "Wicker Park 1BR", price: 1600, type: "1 Bedroom", dates: "Jun 10 – Sep 1", amenities: ["WiFi", "Furnished", "Patio"], poster: "Nina F.", posterCompany: "Grubhub", verified: false, img: "🎵" },
   ],
   atl: [
-    { id: 12, title: "Midtown ATL Studio", price: 1200, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Pool", "Parking"], poster: "Jordan H.", posterCompany: "Coca-Cola", verified: true, img: "🍑" },
-    { id: 13, title: "Buckhead Furnished 1BR", price: 1500, type: "1 Bedroom", dates: "May 25 – Aug 25", amenities: ["WiFi", "Gym", "Furnished"], poster: "Ashley D.", posterCompany: "NCR", verified: true, img: "🏡" },
+    // Gustavo's Bank of America search — 2BR, public transit, ~$1900/mo budget, near Midtown/Downtown
+    { id: 100, title: "The Waterford on Piedmont", price: 1602, type: "2 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Pool", "Parking", "5 min walk to BofA"], poster: "Gustavo T.", posterCompany: "Bank of America", verified: true, img: "🏙️", link: "https://thewaterfordonpiedmont.com/" },
+    { id: 101, title: "Skyline at ATL", price: 1685, type: "2 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Gym", "Rooftop", "Near MARTA"], poster: "Gustavo T.", posterCompany: "Bank of America", verified: true, img: "🌆", link: "https://www.skylineatlapts.com/" },
+    { id: 102, title: "131 Ponce", price: 1819, type: "2 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Gym", "4 min walk to BofA"], poster: "Gustavo T.", posterCompany: "Bank of America", verified: true, img: "🏢", link: "https://www.live131ponce.com/" },
+    { id: 103, title: "Crest at Midtown", price: 1610, type: "2 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Pool", "Gym", "Parking", "5 min walk to BofA"], poster: "Gustavo T.", posterCompany: "Bank of America", verified: true, img: "🏡", link: "https://www.crestatmidtown.com/" },
+    { id: 104, title: "Centennial Place Apartments", price: 1535, type: "2 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Pool", "Parking", "Near MARTA"], poster: "Gustavo T.", posterCompany: "Bank of America", verified: true, img: "🍑", link: "https://www.centennialplaceapartments.com/" },
+    // Anusha's Coca-Cola HQ search — 1BR/Studio, bike-friendly, ~$1500/mo budget
+    { id: 105, title: "Monroe Place Apartments", price: 1010, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Bikeable", "Near Coca-Cola HQ"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🚲", link: "https://www.veryapt.com/n90-apartments-near-one-coca-cola-plaza-atlanta" },
+    { id: 106, title: "Myrtle Street Apartments", price: 1054, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Bikeable", "Midtown"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🌿", link: "https://www.veryapt.com/n90-apartments-near-one-coca-cola-plaza-atlanta" },
+    { id: 107, title: "855 Charles Allen Dr NE", price: 1295, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Bikeable", "Midtown East"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: false, img: "🏠", link: "https://www.redfin.com/neighborhood/147258/GA/Atlanta/Midtown-Atlanta/apartments-under-1500-for-rent" },
+    { id: 108, title: "The Mitchell", price: 1392, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Downtown", "Near MARTA"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🏛️", link: "https://www.zillow.com/downtown-atlanta-ga/apartments-under-1500/" },
+    { id: 109, title: "The Haynes House", price: 1400, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Near Coca-Cola HQ", "Bikeable"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🏡", link: "https://www.veryapt.com/n90-apartments-near-one-coca-cola-plaza-atlanta" },
+    { id: 110, title: "Arts Center Tower Apartments", price: 1480, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Gym", "Midtown"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🎨", link: "https://www.zillow.com/midtown-atlanta-ga/apartments-under-1500/" },
+    { id: 111, title: "Ascent Peachtree", price: 1491, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Gym", "Downtown", "Near MARTA"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🏙️", link: "https://www.zillow.com/atlanta-ga/apartments-under-1500/6_p/" },
+    { id: 112, title: "1660 Peachtree", price: 1495, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Midtown", "Near MARTA"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: false, img: "🏢", link: "https://www.zillow.com/midtown-atlanta-ga/apartments-under-1500/" },
+    { id: 113, title: "Crescent Apartments", price: 1500, type: "1 Bedroom", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "AC", "Gym", "Midtown"], poster: "Anusha R.", posterCompany: "Coca-Cola", verified: true, img: "🌙", link: "https://www.redfin.com/neighborhood/147258/GA/Atlanta/Midtown-Atlanta/apartments-under-1500-for-rent" },
   ],
   sea: [
     { id: 14, title: "Capitol Hill Studio", price: 1700, type: "Studio", dates: "Jun 1 – Aug 31", amenities: ["WiFi", "Furnished", "Coffee nearby"], poster: "Mika T.", posterCompany: "Amazon", verified: true, img: "☕" },
