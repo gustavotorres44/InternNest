@@ -12,6 +12,23 @@ import { getCities, getListings, getTransport, getInterestGroups } from "./lib/d
 // Sub-components use CSS vars (var(--*)) for all neutral colors.
 // Variables are injected by the main component's <style> block and cascade through the DOM.
 
+const COMMUTE_ICONS = { "Walk": "🚶", "Bike": "🚲", "Public Transit": "🚇", "Car": "🚗" };
+
+function getCommuteHighlight(amenities, transportMode) {
+  if (!transportMode || transportMode === "All") return null;
+  let found = null;
+  if (transportMode === "Walk") {
+    found = amenities.find(a => /\d+\s*min\s*walk/i.test(a));
+  } else if (transportMode === "Bike") {
+    found = amenities.find(a => /bikeable/i.test(a)) || amenities.find(a => /near coca-cola/i.test(a));
+  } else if (transportMode === "Public Transit") {
+    found = amenities.find(a => /marta/i.test(a)) || amenities.find(a => /\d+[-–]?\d*\s*min\s*to/i.test(a));
+  } else if (transportMode === "Car") {
+    found = amenities.find(a => /\d+\s*min\s*(to|drive)/i.test(a));
+  }
+  return found || null;
+}
+
 const CityCard = ({ city, isSelected, onClick, index }) => (
   <div
     onClick={onClick}
@@ -43,7 +60,10 @@ const CityCard = ({ city, isSelected, onClick, index }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index }) => (
+const ListingCard = ({ listing, cityColor, index, transportFilter }) => {
+  const commuteInfo = getCommuteHighlight(listing.amenities, transportFilter);
+  const commuteIcon = COMMUTE_ICONS[transportFilter] || "📍";
+  return (
   <div
     style={{
       background: "var(--surface)",
@@ -89,6 +109,20 @@ const ListingCard = ({ listing, cityColor, index }) => (
         <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month</div>
       </div>
     </div>
+
+    {commuteInfo && (
+      <div style={{ display: "flex" }}>
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "6px 14px", borderRadius: 100,
+          background: `${cityColor}18`, border: `1px solid ${cityColor}35`,
+          fontSize: 13, fontWeight: 600, color: cityColor,
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          {commuteIcon} {commuteInfo}
+        </span>
+      </div>
+    )}
 
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {listing.amenities.map((a) => (
@@ -162,7 +196,8 @@ const ListingCard = ({ listing, cityColor, index }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const TransportCard = ({ t, index, cityColor }) => (
   <div
@@ -294,7 +329,7 @@ export default function InternHub() {
   const [activeTab, setActiveTab] = useState("housing");
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [priceFilter, setPriceFilter] = useState("any");
+  const [priceFilter, setPriceFilter] = useState("");
   const [transportFilter, setTransportFilter] = useState("All");
   const [darkMode, setDarkMode] = useState(true);
 
@@ -308,14 +343,9 @@ export default function InternHub() {
   const filteredListings = listings.filter((l) => {
     const matchesType = filter === "All" || l.type === filter;
     const matchesSearch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPrice =
-      priceFilter === "any" ||
-      (priceFilter === "under1200" && l.price <= 1200) ||
-      (priceFilter === "under1500" && l.price <= 1500) ||
-      (priceFilter === "1500-2000" && l.price >= 1500 && l.price <= 2000) ||
-      (priceFilter === "2000-2500" && l.price >= 2000 && l.price <= 2500) ||
-      (priceFilter === "over2500" && l.price >= 2500);
-    const matchesTransport = transportFilter === "All" || !l.transport || l.transport === transportFilter;
+    const maxPrice = parseInt(priceFilter);
+    const matchesPrice = !priceFilter || isNaN(maxPrice) || l.price <= maxPrice;
+    const matchesTransport = transportFilter === "All" || l.transport === transportFilter;
     return matchesType && matchesSearch && matchesPrice && matchesTransport;
   });
 
@@ -371,8 +401,10 @@ export default function InternHub() {
         ::-webkit-scrollbar-thumb { background: ${darkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.2)"}; border-radius: 10px; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        select option { background: ${darkMode ? "#1a1a2e" : "#ffffff"}; color: ${darkMode ? "#fff" : "#111"}; }
         input::placeholder { color: var(--text-muted); }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
       {/* Ambient background */}
@@ -501,7 +533,7 @@ export default function InternHub() {
                   setSelectedCity(city);
                   setFilter("All");
                   setSearchQuery("");
-                  setPriceFilter("any");
+                  setPriceFilter("");
                   setTransportFilter("All");
                 }}
                 index={i}
@@ -595,29 +627,39 @@ export default function InternHub() {
 
             {/* Row 2: price + transport filters */}
             <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
-              <select
-                value={priceFilter}
-                onChange={(e) => setPriceFilter(e.target.value)}
-                style={{
-                  padding: "9px 36px 9px 16px", borderRadius: 100,
-                  border: priceFilter !== "any" ? "none" : "1px solid var(--input-border)",
-                  background: priceFilter !== "any" ? `${selectedCity.color}25` : "var(--input-bg)",
-                  color: priceFilter !== "any" ? selectedCity.color : "var(--text-muted)",
-                  fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                  outline: "none", cursor: "pointer", appearance: "none",
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "right 14px center",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <option value="any">💰 Any price</option>
-                <option value="under1200">Under $1,200</option>
-                <option value="under1500">Under $1,500</option>
-                <option value="1500-2000">$1,500 – $2,000</option>
-                <option value="2000-2500">$2,000 – $2,500</option>
-                <option value="over2500">$2,500+</option>
-              </select>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <span style={{
+                  position: "absolute", left: 14, fontSize: 13, fontWeight: 600,
+                  color: priceFilter ? selectedCity.color : "var(--text-muted)",
+                  pointerEvents: "none", userSelect: "none",
+                }}>$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="50"
+                  placeholder="Max price/mo"
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  style={{
+                    padding: "9px 16px 9px 24px", borderRadius: 100, width: 170,
+                    border: priceFilter ? "none" : "1px solid var(--input-border)",
+                    background: priceFilter ? `${selectedCity.color}25` : "transparent",
+                    color: priceFilter ? selectedCity.color : "var(--text-muted)",
+                    fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                    outline: "none",
+                  }}
+                />
+                {priceFilter && (
+                  <button
+                    onClick={() => setPriceFilter("")}
+                    style={{
+                      position: "absolute", right: 12, background: "none", border: "none",
+                      color: selectedCity.color, fontSize: 14, cursor: "pointer",
+                      lineHeight: 1, padding: 0,
+                    }}
+                  >×</button>
+                )}
+              </div>
               {[
                 { id: "All", label: "Any transit" },
                 { id: "Walk", label: "🚶 Walk" },
@@ -644,7 +686,7 @@ export default function InternHub() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {filteredListings.length > 0 ? filteredListings.map((l, i) => (
-                <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} />
+                <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} transportFilter={transportFilter} />
               )) : (
                 <div style={{
                   textAlign: "center", padding: 60, color: "var(--text-muted)",
