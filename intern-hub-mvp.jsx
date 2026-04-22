@@ -331,7 +331,8 @@ export default function InternHub() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
   const [transportFilter, setTransportFilter] = useState("All");
-  const [darkMode, setDarkMode] = useState(true);
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
+  const [darkMode, setDarkMode] = useState(false);
 
   const tabs = [
     { id: "housing", label: "Housing", icon: "🏠" },
@@ -340,13 +341,15 @@ export default function InternHub() {
   ];
 
   const listings = listingsData[selectedCity.id] || [];
+  const neighborhoods = [...new Set(listings.map(l => l.neighborhood).filter(Boolean))];
   const filteredListings = listings.filter((l) => {
     const matchesType = filter === "All" || l.type === filter;
     const matchesSearch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
     const maxPrice = parseInt(priceFilter);
     const matchesPrice = !priceFilter || isNaN(maxPrice) || l.price <= maxPrice;
     const matchesTransport = transportFilter === "All" || l.transport === transportFilter;
-    return matchesType && matchesSearch && matchesPrice && matchesTransport;
+    const matchesNeighborhood = neighborhoodFilter === "All" || l.neighborhood === neighborhoodFilter;
+    return matchesType && matchesSearch && matchesPrice && matchesTransport && matchesNeighborhood;
   });
 
   return (
@@ -535,6 +538,7 @@ export default function InternHub() {
                   setSearchQuery("");
                   setPriceFilter("");
                   setTransportFilter("All");
+                  setNeighborhoodFilter("All");
                 }}
                 index={i}
               />
@@ -549,7 +553,7 @@ export default function InternHub() {
         }}>
           {[
             { label: "Avg Rent", value: `$${selectedCity.avgRent}/mo`, icon: "💰" },
-            { label: "Listings", value: selectedCity.listings, icon: "🏠" },
+            { label: "Listings", value: filteredListings.length, icon: "🏠" },
             { label: "Groups", value: selectedCity.groups, icon: "👥" },
           ].map((stat) => (
             <div key={stat.label} style={{
@@ -625,7 +629,32 @@ export default function InternHub() {
               ))}
             </div>
 
-            {/* Row 2: price + transport filters */}
+            {/* Row 2: neighborhood filter (only when city has multiple neighborhoods) */}
+            {neighborhoods.length > 1 && (
+              <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-subtle)", letterSpacing: "0.06em", textTransform: "uppercase", marginRight: 2 }}>
+                  📍 Area
+                </span>
+                {["All", ...neighborhoods].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setNeighborhoodFilter(n)}
+                    style={{
+                      padding: "9px 18px", borderRadius: 100,
+                      border: neighborhoodFilter === n ? "none" : "1px solid var(--input-border)",
+                      background: neighborhoodFilter === n ? `${selectedCity.color}25` : "transparent",
+                      color: neighborhoodFilter === n ? selectedCity.color : "var(--text-muted)",
+                      fontSize: 13, fontWeight: 600, cursor: "pointer",
+                      fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
+                    }}
+                  >
+                    {n === "All" ? "All Areas" : n}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Row 3: price + transport filters */}
             <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <span style={{
