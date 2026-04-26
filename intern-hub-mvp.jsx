@@ -15,22 +15,6 @@ import { getCities, getListings, getTransport, getInterestGroups } from "./lib/d
 // Sub-components use CSS vars (var(--*)) for all neutral colors.
 // Variables are injected by the main component's <style> block and cascade through the DOM.
 
-const COMMUTE_ICONS = { "Walk": "🚶", "Bike": "🚲", "Public Transit": "🚇", "Car": "🚗" };
-
-function getCommuteHighlight(amenities, transportMode) {
-  if (!transportMode || transportMode === "All") return null;
-  let found = null;
-  if (transportMode === "Walk") {
-    found = amenities.find(a => /\d+\s*min\s*walk/i.test(a));
-  } else if (transportMode === "Bike") {
-    found = amenities.find(a => /bikeable/i.test(a)) || amenities.find(a => /near coca-cola/i.test(a));
-  } else if (transportMode === "Public Transit") {
-    found = amenities.find(a => /marta/i.test(a)) || amenities.find(a => /\d+[-–]?\d*\s*min\s*to/i.test(a));
-  } else if (transportMode === "Car") {
-    found = amenities.find(a => /\d+\s*min\s*(to|drive)/i.test(a));
-  }
-  return found || null;
-}
 
 const QUOTES = [
   { text: "Good public transit dropped me off right at the door of Microsoft — it let me actually live in the city.", company: "Microsoft Intern", city: "Seattle", color: "#00a4ef" },
@@ -43,6 +27,69 @@ const QUOTES = [
   { text: "I ended up in NYU summer housing — big room, pretty nice. Just be prepared: the whole process moves fast.", company: "BMW Intern", city: "New York", color: "#0066b1" },
   { text: "Stressful part was finding where to stay in 2 months and finding a car — I had no car at the time.", company: "BMW Intern", city: "New York", color: "#0066b1" },
 ];
+
+const TRANSIT_STOPS = {
+  atl: [
+    { name: "Five Points", lat: 33.7540, lng: -84.3912 },
+    { name: "Peachtree Center", lat: 33.7581, lng: -84.3864 },
+    { name: "Civic Center", lat: 33.7677, lng: -84.3874 },
+    { name: "North Avenue", lat: 33.7718, lng: -84.3872 },
+    { name: "Midtown", lat: 33.7814, lng: -84.3840 },
+    { name: "Arts Center", lat: 33.7897, lng: -84.3882 },
+  ],
+  ny: [
+    { name: "14th St – 8th Ave", lat: 40.7404, lng: -74.0019 },
+    { name: "23rd St (C/E)", lat: 40.7443, lng: -74.0001 },
+    { name: "23rd St (1)", lat: 40.7427, lng: -74.0002 },
+    { name: "14th St (1/2/3)", lat: 40.7382, lng: -74.0001 },
+  ],
+  sf: [
+    { name: "SF 4th & King (Caltrain)", lat: 37.7764, lng: -122.3952 },
+    { name: "South SF (Caltrain)", lat: 37.6545, lng: -122.4016 },
+    { name: "San Mateo (Caltrain)", lat: 37.5674, lng: -122.3233 },
+    { name: "Redwood City (Caltrain)", lat: 37.4855, lng: -122.2317 },
+    { name: "Menlo Park (Caltrain)", lat: 37.4548, lng: -122.1827 },
+    { name: "Palo Alto (Caltrain)", lat: 37.4432, lng: -122.1648 },
+  ],
+  bos: [
+    { name: "Harvard", lat: 42.3734, lng: -71.1189 },
+    { name: "Porter", lat: 42.3884, lng: -71.1193 },
+    { name: "Kendall/MIT", lat: 42.3625, lng: -71.0863 },
+    { name: "Central", lat: 42.3651, lng: -71.1031 },
+    { name: "Downtown Crossing", lat: 42.3553, lng: -71.0602 },
+    { name: "Back Bay", lat: 42.3474, lng: -71.0753 },
+  ],
+  chi: [
+    { name: "Clark/Lake", lat: 41.8858, lng: -87.6324 },
+    { name: "State/Lake", lat: 41.8858, lng: -87.6281 },
+    { name: "Grand (Red)", lat: 41.8917, lng: -87.6282 },
+    { name: "Chicago (Red)", lat: 41.8967, lng: -87.6282 },
+    { name: "Fullerton", lat: 41.9250, lng: -87.6532 },
+    { name: "Belmont", lat: 41.9396, lng: -87.6534 },
+  ],
+  sea: [
+    { name: "Westlake", lat: 47.6114, lng: -122.3370 },
+    { name: "Capitol Hill", lat: 47.6198, lng: -122.3200 },
+    { name: "U District", lat: 47.6498, lng: -122.3042 },
+    { name: "Pioneer Square", lat: 47.6017, lng: -122.3335 },
+    { name: "ID/Chinatown", lat: 47.5984, lng: -122.3249 },
+  ],
+  la: [
+    { name: "Union Station", lat: 34.0561, lng: -118.2365 },
+    { name: "7th St/Metro Center", lat: 34.0486, lng: -118.2590 },
+    { name: "Wilshire/Vermont", lat: 34.0630, lng: -118.2923 },
+    { name: "Hollywood/Vine", lat: 34.1018, lng: -118.3267 },
+    { name: "Culver City (Expo)", lat: 34.0101, lng: -118.3957 },
+  ],
+  dc: [
+    { name: "Union Station", lat: 38.8975, lng: -77.0062 },
+    { name: "Gallery Place", lat: 38.8983, lng: -77.0220 },
+    { name: "Metro Center", lat: 38.8984, lng: -77.0282 },
+    { name: "L'Enfant Plaza", lat: 38.8845, lng: -77.0212 },
+    { name: "Foggy Bottom", lat: 38.9002, lng: -77.0505 },
+    { name: "Dupont Circle", lat: 38.9097, lng: -77.0436 },
+  ],
+};
 
 const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   <div
@@ -76,9 +123,7 @@ const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index, transportFilter, isHighlighted }) => {
-  const commuteInfo = getCommuteHighlight(listing.amenities, transportFilter);
-  const commuteIcon = COMMUTE_ICONS[transportFilter] || "📍";
+const ListingCard = ({ listing, cityColor, index, isHighlighted }) => {
   return (
   <div
     style={{
@@ -128,20 +173,6 @@ const ListingCard = ({ listing, cityColor, index, transportFilter, isHighlighted
         <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month</div>
       </div>
     </div>
-
-    {commuteInfo && (
-      <div style={{ display: "flex" }}>
-        <span style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "6px 14px", borderRadius: 100,
-          background: `${cityColor}18`, border: `1px solid ${cityColor}35`,
-          fontSize: 13, fontWeight: 600, color: cityColor,
-          fontFamily: "'DM Sans', sans-serif",
-        }}>
-          {commuteIcon} {commuteInfo}
-        </span>
-      </div>
-    )}
 
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {listing.amenities.map((a) => (
@@ -357,7 +388,6 @@ export default function InternHub() {
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [priceFilter, setPriceFilter] = useState("");
-  const [transportFilter, setTransportFilter] = useState("All");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
   const [highlightedListingId, setHighlightedListingId] = useState(null);
   const [searchPin, setSearchPin] = useState(null);
@@ -391,9 +421,8 @@ export default function InternHub() {
     const matchesSearch = !searchQuery || !searchMatchesAnyListing || l.title.toLowerCase().includes(searchQuery.toLowerCase());
     const maxPrice = parseInt(priceFilter);
     const matchesPrice = !priceFilter || isNaN(maxPrice) || l.price <= maxPrice;
-    const matchesTransport = transportFilter === "All" || l.transport === transportFilter;
     const matchesNeighborhood = neighborhoodFilter === "All" || l.neighborhood === neighborhoodFilter;
-    return matchesType && matchesSearch && matchesPrice && matchesTransport && matchesNeighborhood;
+    return matchesType && matchesSearch && matchesPrice && matchesNeighborhood;
   });
   const hasMapData = filteredListings.some(l => l.lat && l.lng) || !!searchPin;
   const displayListings = highlightedListingId && filteredListings.some(l => l.id === highlightedListingId)
@@ -771,22 +800,6 @@ export default function InternHub() {
                   </div>
                 )}
 
-                {/* Transit */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Transit</span>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {[{ id: "All", label: "Any" }, { id: "Walk", label: "🚶 Walk" }, { id: "Bike", label: "🚲 Bike" }, { id: "Public Transit", label: "🚇 Transit" }, { id: "Car", label: "🚗 Car" }].map((t) => (
-                      <button key={t.id} onClick={() => setTransportFilter(t.id)} style={{
-                        padding: "6px 14px", borderRadius: 100, cursor: "pointer",
-                        border: transportFilter === t.id ? "none" : "1px solid var(--input-border)",
-                        background: transportFilter === t.id ? `${selectedCity.color}22` : "transparent",
-                        color: transportFilter === t.id ? selectedCity.color : "var(--text-muted)",
-                        fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s ease",
-                      }}>{t.label}</button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Budget */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Budget</span>
@@ -832,7 +845,7 @@ export default function InternHub() {
               {/* Listings column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
                 {displayListings.length > 0 ? displayListings.map((l, i) => (
-                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} transportFilter={transportFilter} isHighlighted={l.id === highlightedListingId} />
+                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} />
                 )) : (
                   <div style={{
                     textAlign: "center", padding: 60, color: "var(--text-muted)",
@@ -877,6 +890,7 @@ export default function InternHub() {
                       onSelectListing={setHighlightedListingId}
                       highlightedListingId={highlightedListingId}
                       searchPin={searchPin}
+                      transitStops={TRANSIT_STOPS[selectedCity.id] || []}
                     />
                   </div>
                 </div>

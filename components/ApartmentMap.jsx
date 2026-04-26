@@ -4,6 +4,23 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 
+function makeTransitIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="
+      width:20px;height:20px;border-radius:6px;
+      background:#1c1c2e;color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:800;letter-spacing:-0.5px;
+      box-shadow:0 1px 5px rgba(0,0,0,0.45);
+      font-family:sans-serif;
+    ">M</div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -14],
+  });
+}
+
 function searchPinIcon() {
   return L.divIcon({
     className: "",
@@ -62,7 +79,7 @@ function FitBounds({ listingKey, listings }) {
   return null;
 }
 
-export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin }) {
+export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin, transitStops = [] }) {
   const withCoords = listings.filter(l => l.lat && l.lng);
   if (withCoords.length === 0 && !searchPin) return null;
 
@@ -105,6 +122,16 @@ export default function ApartmentMap({ listings, cityColor, darkMode, cityId, on
             </Popup>
           </Marker>
         )}
+        {transitStops.map(s => (
+          <Marker key={s.name} position={[s.lat, s.lng]} icon={makeTransitIcon()} zIndexOffset={500}>
+            <Popup>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", padding: "2px 0", minWidth: 130 }}>
+                <div style={{ fontWeight: 700, fontSize: 13 }}>🚇 {s.name}</div>
+                <div style={{ color: "#888", fontSize: 11, marginTop: 2 }}>Transit stop</div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
         {withCoords.map(l => {
           const isHighlighted = l.id === highlightedListingId;
           return (
