@@ -385,16 +385,17 @@ export default function InternHub() {
 
   const listings = listingsData[selectedCity.id] || [];
   const neighborhoods = [...new Set(listings.map(l => l.neighborhood).filter(Boolean))];
+  const searchMatchesAnyListing = !searchQuery || listings.some(l => l.title.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredListings = listings.filter((l) => {
     const matchesType = filter === "All" || l.type === filter;
-    const matchesSearch = !searchQuery || l.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = !searchQuery || !searchMatchesAnyListing || l.title.toLowerCase().includes(searchQuery.toLowerCase());
     const maxPrice = parseInt(priceFilter);
     const matchesPrice = !priceFilter || isNaN(maxPrice) || l.price <= maxPrice;
     const matchesTransport = transportFilter === "All" || l.transport === transportFilter;
     const matchesNeighborhood = neighborhoodFilter === "All" || l.neighborhood === neighborhoodFilter;
     return matchesType && matchesSearch && matchesPrice && matchesTransport && matchesNeighborhood;
   });
-  const hasMapData = filteredListings.some(l => l.lat && l.lng);
+  const hasMapData = filteredListings.some(l => l.lat && l.lng) || !!searchPin;
   const displayListings = highlightedListingId && filteredListings.some(l => l.id === highlightedListingId)
     ? [filteredListings.find(l => l.id === highlightedListingId), ...filteredListings.filter(l => l.id !== highlightedListingId)]
     : filteredListings;
@@ -910,9 +911,17 @@ export default function InternHub() {
             <div style={{
               marginBottom: 24, padding: 20, borderRadius: 16,
               background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
+              display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10,
             }}>
               <span style={{ fontSize: 15, color: "var(--text-med)" }}>
                 🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> this summer
+              </span>
+              <span style={{
+                background: selectedCity.color, color: "#fff",
+                borderRadius: 100, padding: "4px 14px", fontSize: 13, fontWeight: 600,
+                letterSpacing: 0.2, whiteSpace: "nowrap",
+              }}>
+                {(interestGroupsData[selectedCity.id] || []).length} groups
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
