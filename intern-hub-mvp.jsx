@@ -32,6 +32,18 @@ function getCommuteHighlight(amenities, transportMode) {
   return found || null;
 }
 
+const QUOTES = [
+  { text: "Good public transit dropped me off right at the door of Microsoft — it let me actually live in the city.", company: "Microsoft Intern", city: "Seattle", color: "#00a4ef" },
+  { text: "The hardest part is finding a place. Once you find it, it's pretty much smooth sailing.", company: "Tesla Intern", city: "", color: "#cc0000" },
+  { text: "Moving around in Austin was much more complicated due to having to Uber everywhere.", company: "Tesla Intern", city: "Austin", color: "#cc0000" },
+  { text: "There's no clear manual for where to live in LA — people commute from many different areas depending on preferences and budget.", company: "Apple Intern", city: "Los Angeles", color: "#555" },
+  { text: "In LA, I feel like I have a life outside of Apple, which has made the internship more balanced and fulfilling.", company: "Apple Intern", city: "Los Angeles", color: "#555" },
+  { text: "Adjusting to a new city where I didn't have close friends initially required starting over socially.", company: "Apple Intern", city: "Los Angeles", color: "#555" },
+  { text: "The most stressful part was finding affordable housing in a good location. It took a while.", company: "BMW Intern", city: "New York", color: "#0066b1" },
+  { text: "I ended up in NYU summer housing — big room, pretty nice. Just be prepared: the whole process moves fast.", company: "BMW Intern", city: "New York", color: "#0066b1" },
+  { text: "Stressful part was finding where to stay in 2 months and finding a car — I had no car at the time.", company: "BMW Intern", city: "New York", color: "#0066b1" },
+];
+
 const CityCard = ({ city, isSelected, onClick, index }) => (
   <div
     onClick={onClick}
@@ -402,6 +414,10 @@ export default function InternHub() {
           from { opacity: 0; transform: translateY(30px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -524,6 +540,57 @@ export default function InternHub() {
             Find subleases, navigate transit, and connect with fellow interns — all in one place.
           </p>
         </section>
+
+        {/* Testimonials Marquee */}
+        <div style={{ marginBottom: 44, marginTop: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.12em", textTransform: "uppercase", textAlign: "center", marginBottom: 18 }}>
+            Born from the struggles of previous interns
+          </div>
+          <div style={{ position: "relative", overflow: "hidden" }}>
+            {/* fade masks */}
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 80, zIndex: 2, background: `linear-gradient(to right, var(--bg), transparent)`, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 80, zIndex: 2, background: `linear-gradient(to left, var(--bg), transparent)`, pointerEvents: "none" }} />
+            <div
+              style={{ display: "flex", gap: 14, width: "max-content", animation: "marquee 55s linear infinite" }}
+              onMouseEnter={(e) => { e.currentTarget.style.animationPlayState = "paused"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.animationPlayState = "running"; }}
+            >
+              {[...QUOTES, ...QUOTES].map((q, i) => (
+                <div key={i} style={{
+                  flexShrink: 0, width: 290,
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 18, padding: "18px 22px",
+                  display: "flex", flexDirection: "column", gap: 14,
+                }}>
+                  <div style={{
+                    fontFamily: "'Instrument Serif', Georgia, serif",
+                    fontSize: 15, fontStyle: "italic",
+                    color: "var(--text-med)", lineHeight: 1.6,
+                    flex: 1,
+                  }}>
+                    "{q.text}"
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 100,
+                      background: `${q.color}18`, color: q.color,
+                      fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif",
+                      border: `1px solid ${q.color}30`,
+                    }}>
+                      {q.company}
+                    </span>
+                    {q.city && (
+                      <span style={{ fontSize: 12, color: "var(--text-subtle)", fontFamily: "'DM Sans', sans-serif" }}>
+                        📍 {q.city}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* City Selector */}
         <section style={{ marginBottom: 36 }}>
