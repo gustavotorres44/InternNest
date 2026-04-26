@@ -123,7 +123,7 @@ const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index, isHighlighted }) => {
+const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect }) => {
   return (
   <div
     style={{
@@ -137,7 +137,9 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted }) => {
       display: "flex",
       flexDirection: "column",
       gap: 14,
+      cursor: listing.lat && listing.lng ? "pointer" : "default",
     }}
+    onClick={() => listing.lat && listing.lng && onSelect && onSelect(isHighlighted ? null : listing.id)}
     onMouseEnter={(e) => {
       if (isHighlighted) return;
       e.currentTarget.style.border = `1px solid ${cityColor}40`;
@@ -845,7 +847,7 @@ export default function InternHub() {
               {/* Listings column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
                 {displayListings.length > 0 ? displayListings.map((l, i) => (
-                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} />
+                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} />
                 )) : (
                   <div style={{
                     textAlign: "center", padding: 60, color: "var(--text-muted)",

@@ -35,6 +35,19 @@ function searchPinIcon() {
   });
 }
 
+function FlyToListing({ listings, highlightedListingId }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!highlightedListingId) return;
+    const l = listings.find(x => x.id === highlightedListingId);
+    if (l?.lat && l?.lng) {
+      map.flyTo([l.lat, l.lng], 15, { duration: 0.9 });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightedListingId]);
+  return null;
+}
+
 function FlyToPin({ searchPin }) {
   const map = useMap();
   useEffect(() => {
@@ -132,6 +145,7 @@ export default function ApartmentMap({ listings, cityColor, darkMode, cityId, on
           maxZoom={19}
         />
         <FitBounds listingKey={listingKey} listings={withCoords} />
+        <FlyToListing listings={withCoords} highlightedListingId={highlightedListingId} />
         <FlyToPin searchPin={searchPin} />
         {searchPin && (
           <Marker position={[searchPin.lat, searchPin.lng]} icon={searchPinIcon()} zIndexOffset={2000}>
