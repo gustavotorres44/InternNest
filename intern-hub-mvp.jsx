@@ -76,16 +76,17 @@ const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index, transportFilter }) => {
+const ListingCard = ({ listing, cityColor, index, transportFilter, isHighlighted }) => {
   const commuteInfo = getCommuteHighlight(listing.amenities, transportFilter);
   const commuteIcon = COMMUTE_ICONS[transportFilter] || "📍";
   return (
   <div
     style={{
-      background: "var(--surface)",
+      background: isHighlighted ? `${cityColor}08` : "var(--surface)",
       borderRadius: 20,
       padding: 24,
-      border: "1px solid var(--border)",
+      border: isHighlighted ? `2px solid ${cityColor}` : "1px solid var(--border)",
+      boxShadow: isHighlighted ? `0 4px 20px ${cityColor}20` : "none",
       animation: `fadeSlideUp 0.5s ease ${index * 0.08}s both`,
       transition: "all 0.3s ease",
       display: "flex",
@@ -93,10 +94,12 @@ const ListingCard = ({ listing, cityColor, index, transportFilter }) => {
       gap: 14,
     }}
     onMouseEnter={(e) => {
+      if (isHighlighted) return;
       e.currentTarget.style.border = `1px solid ${cityColor}40`;
       e.currentTarget.style.background = "var(--surface-hover)";
     }}
     onMouseLeave={(e) => {
+      if (isHighlighted) return;
       e.currentTarget.style.border = "1px solid var(--border)";
       e.currentTarget.style.background = "var(--surface)";
     }}
@@ -348,7 +351,7 @@ export default function InternHub() {
   const [priceFilter, setPriceFilter] = useState("");
   const [transportFilter, setTransportFilter] = useState("All");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
-  const [showMap, setShowMap] = useState(true);
+  const [highlightedListingId, setHighlightedListingId] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
   const tabs = [
@@ -368,6 +371,10 @@ export default function InternHub() {
     const matchesNeighborhood = neighborhoodFilter === "All" || l.neighborhood === neighborhoodFilter;
     return matchesType && matchesSearch && matchesPrice && matchesTransport && matchesNeighborhood;
   });
+  const hasMapData = filteredListings.some(l => l.lat && l.lng);
+  const displayListings = highlightedListingId && filteredListings.some(l => l.id === highlightedListingId)
+    ? [filteredListings.find(l => l.id === highlightedListingId), ...filteredListings.filter(l => l.id !== highlightedListingId)]
+    : filteredListings;
 
   return (
     <div style={{
@@ -447,7 +454,7 @@ export default function InternHub() {
         }} />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1440, margin: "0 auto", padding: "0 32px" }}>
 
         {/* Header */}
         <header style={{
@@ -615,6 +622,7 @@ export default function InternHub() {
                       setPriceFilter("");
                       setTransportFilter("All");
                       setNeighborhoodFilter("All");
+                      setHighlightedListingId(null);
                     }}
                     index={i}
                     sidebar
@@ -794,75 +802,80 @@ export default function InternHub() {
               ))}
             </div>
 
-            {/* Map / List toggle header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            {/* Listing count + clear highlight */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <span style={{ fontSize: 13, color: "var(--text-subtle)", fontFamily: "'DM Sans', sans-serif" }}>
                 {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
               </span>
-              <div style={{ display: "flex", background: "var(--surface)", borderRadius: 100, padding: 4, border: "1px solid var(--border-subtle)", gap: 2 }}>
-                {[{ v: true, icon: "🗺️", label: "Map" }, { v: false, icon: "☰", label: "List" }].map(({ v, icon, label }) => (
-                  <button
-                    key={label}
-                    onClick={() => setShowMap(v)}
-                    style={{
-                      padding: "6px 14px", borderRadius: 100, border: "none", cursor: "pointer",
-                      background: showMap === v ? selectedCity.color : "transparent",
-                      color: showMap === v ? "#fff" : "var(--text-muted)",
-                      fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                      transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: 5,
-                    }}
-                  >
-                    <span>{icon}</span> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Map view */}
-            {showMap && (
-              <div style={{ marginBottom: 20, borderRadius: 20, overflow: "hidden", border: "1px solid var(--border)" }}>
-                <ApartmentMap
-                  listings={filteredListings}
-                  cityColor={selectedCity.color}
-                  darkMode={darkMode}
-                  cityId={selectedCity.id}
-                />
-              </div>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {filteredListings.length > 0 ? filteredListings.map((l, i) => (
-                <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} transportFilter={transportFilter} />
-              )) : (
-                <div style={{
-                  textAlign: "center", padding: 60, color: "var(--text-muted)",
-                  fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
-                }}>
-                  No listings match your search. Try adjusting filters.
-                </div>
+              {highlightedListingId && (
+                <button
+                  onClick={() => setHighlightedListingId(null)}
+                  style={{
+                    background: `${selectedCity.color}18`, border: `1px solid ${selectedCity.color}30`,
+                    color: selectedCity.color, borderRadius: 100, padding: "3px 10px",
+                    fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  Clear selection ×
+                </button>
               )}
             </div>
 
-            {/* Post CTA */}
-            <div style={{
-              marginTop: 32, padding: 28, borderRadius: 20,
-              background: `linear-gradient(135deg, ${selectedCity.color}15, ${selectedCity.color}05)`,
-              border: `1px solid ${selectedCity.color}25`,
-              textAlign: "center",
-            }}>
-              <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8, color: "var(--text)" }}>
-                Subleasing your place this summer?
+            {/* Listings + Map side by side */}
+            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+
+              {/* Listings column */}
+              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+                {displayListings.length > 0 ? displayListings.map((l, i) => (
+                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} transportFilter={transportFilter} isHighlighted={l.id === highlightedListingId} />
+                )) : (
+                  <div style={{
+                    textAlign: "center", padding: 60, color: "var(--text-muted)",
+                    fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
+                  }}>
+                    No listings match your search. Try adjusting filters.
+                  </div>
+                )}
+
+                {/* Post CTA */}
+                <div style={{
+                  marginTop: 8, padding: 28, borderRadius: 20,
+                  background: `linear-gradient(135deg, ${selectedCity.color}15, ${selectedCity.color}05)`,
+                  border: `1px solid ${selectedCity.color}25`,
+                  textAlign: "center",
+                }}>
+                  <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8, color: "var(--text)" }}>
+                    Subleasing your place this summer?
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
+                    Help fellow interns find housing in {selectedCity.name}
+                  </div>
+                  <button style={{
+                    padding: "12px 32px", borderRadius: 100, border: "none",
+                    background: selectedCity.color, color: "#fff", fontSize: 15,
+                    fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    + Post a Listing
+                  </button>
+                </div>
               </div>
-              <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
-                Help fellow interns find housing in {selectedCity.name}
-              </div>
-              <button style={{
-                padding: "12px 32px", borderRadius: 100, border: "none",
-                background: selectedCity.color, color: "#fff", fontSize: 15,
-                fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-              }}>
-                + Post a Listing
-              </button>
+
+              {/* Map column — sticky, only for cities with coordinates */}
+              {hasMapData && (
+                <div style={{ width: 400, flexShrink: 0 }}>
+                  <div style={{ position: "sticky", top: 24 }}>
+                    <ApartmentMap
+                      listings={filteredListings}
+                      cityColor={selectedCity.color}
+                      darkMode={darkMode}
+                      cityId={selectedCity.id}
+                      onSelectListing={setHighlightedListingId}
+                      highlightedListingId={highlightedListingId}
+                    />
+                  </div>
+                </div>
+              )}
+
             </div>
           </section>
         )}
