@@ -1,5 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+
+const ApartmentMap = dynamic(() => import("./components/ApartmentMap"), { ssr: false });
 
 import {
   FALLBACK_CITIES as CITIES,
@@ -332,6 +335,7 @@ export default function InternHub() {
   const [priceFilter, setPriceFilter] = useState("");
   const [transportFilter, setTransportFilter] = useState("All");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
+  const [showMap, setShowMap] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
   const tabs = [
@@ -712,6 +716,42 @@ export default function InternHub() {
                 </button>
               ))}
             </div>
+
+            {/* Map / List toggle header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <span style={{ fontSize: 13, color: "var(--text-subtle)", fontFamily: "'DM Sans', sans-serif" }}>
+                {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
+              </span>
+              <div style={{ display: "flex", background: "var(--surface)", borderRadius: 100, padding: 4, border: "1px solid var(--border-subtle)", gap: 2 }}>
+                {[{ v: true, icon: "🗺️", label: "Map" }, { v: false, icon: "☰", label: "List" }].map(({ v, icon, label }) => (
+                  <button
+                    key={label}
+                    onClick={() => setShowMap(v)}
+                    style={{
+                      padding: "6px 14px", borderRadius: 100, border: "none", cursor: "pointer",
+                      background: showMap === v ? selectedCity.color : "transparent",
+                      color: showMap === v ? "#fff" : "var(--text-muted)",
+                      fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                      transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: 5,
+                    }}
+                  >
+                    <span>{icon}</span> {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Map view */}
+            {showMap && (
+              <div style={{ marginBottom: 20, borderRadius: 20, overflow: "hidden", border: "1px solid var(--border)" }}>
+                <ApartmentMap
+                  listings={filteredListings}
+                  cityColor={selectedCity.color}
+                  darkMode={darkMode}
+                  cityId={selectedCity.id}
+                />
+              </div>
+            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {filteredListings.length > 0 ? filteredListings.map((l, i) => (
