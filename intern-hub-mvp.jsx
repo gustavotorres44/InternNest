@@ -668,7 +668,7 @@ export default function InternHub() {
           {[
             { label: "Avg Rent", value: `$${selectedCity.avgRent}/mo`, icon: "💰" },
             { label: "Listings", value: filteredListings.length, icon: "🏠" },
-            { label: "Groups", value: selectedCity.groups, icon: "👥" },
+            { label: "Groups", value: (interestGroupsData[selectedCity.id] || []).length, icon: "👥" },
           ].map((stat) => (
             <div key={stat.label} style={{
               flex: 1, minWidth: 140, background: "var(--surface)", borderRadius: 16,
@@ -911,17 +911,9 @@ export default function InternHub() {
             <div style={{
               marginBottom: 24, padding: 20, borderRadius: 16,
               background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
-              display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10,
             }}>
               <span style={{ fontSize: 15, color: "var(--text-med)" }}>
                 🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> this summer
-              </span>
-              <span style={{
-                background: selectedCity.color, color: "#fff",
-                borderRadius: 100, padding: "4px 14px", fontSize: 13, fontWeight: 600,
-                letterSpacing: 0.2, whiteSpace: "nowrap",
-              }}>
-                {(interestGroupsData[selectedCity.id] || []).length} groups
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
