@@ -1,6 +1,6 @@
 "use client";
 import "leaflet/dist/leaflet.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 
@@ -8,16 +8,16 @@ function makeTransitIcon() {
   return L.divIcon({
     className: "",
     html: `<div style="
-      width:20px;height:20px;border-radius:6px;
+      width:13px;height:13px;border-radius:3px;
       background:#1c1c2e;color:#fff;
       display:flex;align-items:center;justify-content:center;
-      font-size:11px;font-weight:800;letter-spacing:-0.5px;
-      box-shadow:0 1px 5px rgba(0,0,0,0.45);
+      font-size:8px;font-weight:800;
+      box-shadow:0 1px 4px rgba(0,0,0,0.5);
       font-family:sans-serif;
     ">M</div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-    popupAnchor: [0, -14],
+    iconSize: [13, 13],
+    iconAnchor: [6, 6],
+    popupAnchor: [0, -10],
   });
 }
 
@@ -80,6 +80,7 @@ function FitBounds({ listingKey, listings }) {
 }
 
 export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin, transitStops = [] }) {
+  const [showTransit, setShowTransit] = useState(false);
   const withCoords = listings.filter(l => l.lat && l.lng);
   if (withCoords.length === 0 && !searchPin) return null;
 
@@ -97,7 +98,27 @@ export default function ApartmentMap({ listings, cityColor, darkMode, cityId, on
   const listingKey = withCoords.map(l => l.id).join(",");
 
   return (
-    <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(0,0,0,0.1)" }}>
+    <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(0,0,0,0.1)", position: "relative" }}>
+      <button
+        onClick={() => setShowTransit(v => !v)}
+        style={{
+          position: "absolute", top: 10, right: 10, zIndex: 1000,
+          padding: "5px 12px", borderRadius: 8, border: "none", cursor: "pointer",
+          background: showTransit ? "#1c1c2e" : "rgba(255,255,255,0.92)",
+          color: showTransit ? "#fff" : "#1c1c2e",
+          fontSize: 12, fontWeight: 700, fontFamily: "sans-serif",
+          boxShadow: "0 1px 6px rgba(0,0,0,0.25)",
+          display: "flex", alignItems: "center", gap: 5,
+        }}
+      >
+        <span style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: 14, height: 14, borderRadius: 3,
+          background: showTransit ? "#fff" : "#1c1c2e", color: showTransit ? "#1c1c2e" : "#fff",
+          fontSize: 8, fontWeight: 800,
+        }}>M</span>
+        Transit
+      </button>
       <MapContainer
         key={cityId}
         center={center}
@@ -122,7 +143,7 @@ export default function ApartmentMap({ listings, cityColor, darkMode, cityId, on
             </Popup>
           </Marker>
         )}
-        {transitStops.map(s => (
+        {showTransit && transitStops.map(s => (
           <Marker key={s.name} position={[s.lat, s.lng]} icon={makeTransitIcon()} zIndexOffset={500}>
             <Popup>
               <div style={{ fontFamily: "'DM Sans', sans-serif", padding: "2px 0", minWidth: 130 }}>
