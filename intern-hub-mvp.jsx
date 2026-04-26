@@ -201,17 +201,6 @@ const ListingCard = ({ listing, cityColor, index, transportFilter, isHighlighted
             View ↗
           </a>
         )}
-        <button
-          style={{
-            padding: "8px 20px", borderRadius: 100, border: `1.5px solid ${cityColor}`,
-            background: "transparent", color: cityColor, fontSize: 13, fontWeight: 600,
-            cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => { e.target.style.background = cityColor; e.target.style.color = "#fff"; }}
-          onMouseLeave={(e) => { e.target.style.background = "transparent"; e.target.style.color = cityColor; }}
-        >
-          Contact
-        </button>
       </div>
     </div>
   </div>
@@ -294,18 +283,37 @@ const GroupCard = ({ g, index, cityColor }) => (
         </div>
       </div>
     </div>
-    <button
-      style={{
-        padding: "7px 18px", borderRadius: 100, border: "none",
-        background: `${cityColor}20`, color: cityColor, fontSize: 13,
-        fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-        transition: "all 0.2s ease",
-      }}
-      onMouseEnter={(e) => { e.target.style.background = cityColor; e.target.style.color = "#fff"; }}
-      onMouseLeave={(e) => { e.target.style.background = `${cityColor}20`; e.target.style.color = cityColor; }}
-    >
-      Join
-    </button>
+    {g.link ? (
+      <a
+        href={g.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          padding: "7px 18px", borderRadius: 100, border: "none",
+          background: `${cityColor}20`, color: cityColor, fontSize: 13,
+          fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+          textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = cityColor; e.currentTarget.style.color = "#fff"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = `${cityColor}20`; e.currentTarget.style.color = cityColor; }}
+      >
+        Join ↗
+      </a>
+    ) : (
+      <button
+        style={{
+          padding: "7px 18px", borderRadius: 100, border: "none",
+          background: `${cityColor}20`, color: cityColor, fontSize: 13,
+          fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => { e.target.style.background = cityColor; e.target.style.color = "#fff"; }}
+        onMouseLeave={(e) => { e.target.style.background = `${cityColor}20`; e.target.style.color = cityColor; }}
+      >
+        Join
+      </button>
+    )}
   </div>
 );
 
@@ -352,7 +360,22 @@ export default function InternHub() {
   const [transportFilter, setTransportFilter] = useState("All");
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
   const [highlightedListingId, setHighlightedListingId] = useState(null);
+  const [searchPin, setSearchPin] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim().length < 4) { setSearchPin(null); return; }
+    const t = setTimeout(async () => {
+      try {
+        const q = encodeURIComponent(`${searchQuery.trim()}, ${selectedCity.name}`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&countrycodes=us`, { headers: { "Accept-Language": "en-US" } });
+        const data = await res.json();
+        if (data.length > 0) setSearchPin({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: searchQuery.trim() });
+        else setSearchPin(null);
+      } catch { setSearchPin(null); }
+    }, 700);
+    return () => clearTimeout(t);
+  }, [searchQuery, selectedCity.id]);
 
   const tabs = [
     { id: "housing", label: "Housing", icon: "🏠" },
@@ -623,6 +646,7 @@ export default function InternHub() {
                       setTransportFilter("All");
                       setNeighborhoodFilter("All");
                       setHighlightedListingId(null);
+                      setSearchPin(null);
                     }}
                     index={i}
                     sidebar
@@ -687,119 +711,99 @@ export default function InternHub() {
         {/* === HOUSING TAB === */}
         {activeTab === "housing" && (
           <section key={selectedCity.id + "-housing"}>
-            {/* Row 1: search + type filter */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
+            {/* Filter panel */}
+            <div style={{
+              background: "var(--surface)", border: "1px solid var(--border-subtle)",
+              borderRadius: 18, padding: "16px 20px", marginBottom: 20,
+            }}>
+              {/* Search */}
               <input
                 type="text"
-                placeholder={`Search in ${selectedCity.name}...`}
+                placeholder={`Search listings or address in ${selectedCity.name}…`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  padding: "11px 20px", borderRadius: 12, border: "1px solid var(--input-border)",
-                  background: "var(--input-bg)", color: "var(--text)", fontSize: 14,
-                  fontFamily: "'DM Sans', sans-serif", outline: "none", flex: 1, minWidth: 200,
+                  width: "100%", padding: "10px 16px", borderRadius: 12,
+                  border: "1px solid var(--input-border)", background: "var(--input-bg)",
+                  color: "var(--text)", fontSize: 14, fontFamily: "'DM Sans', sans-serif",
+                  outline: "none", marginBottom: 14, boxSizing: "border-box",
                 }}
               />
-              {["All", "Studio", "1 Bedroom", "2 Bedroom", "Shared Room"].map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  style={{
-                    padding: "9px 18px", borderRadius: 100,
-                    border: filter === f ? "none" : "1px solid var(--input-border)",
-                    background: filter === f ? `${selectedCity.color}25` : "transparent",
-                    color: filter === f ? selectedCity.color : "var(--text-muted)",
-                    fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
-                  }}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+              {searchPin && (
+                <div style={{ marginBottom: 10, fontSize: 12, color: selectedCity.color, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+                  📍 Showing "{searchPin.label}" on map
+                </div>
+              )}
 
-            {/* Row 2: neighborhood filter (only when city has multiple neighborhoods) */}
-            {neighborhoods.length > 1 && (
-              <div style={{ display: "flex", gap: 10, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-subtle)", letterSpacing: "0.06em", textTransform: "uppercase", marginRight: 2 }}>
-                  📍 Area
-                </span>
-                {["All", ...neighborhoods].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setNeighborhoodFilter(n)}
-                    style={{
-                      padding: "9px 18px", borderRadius: 100,
-                      border: neighborhoodFilter === n ? "none" : "1px solid var(--input-border)",
-                      background: neighborhoodFilter === n ? `${selectedCity.color}25` : "transparent",
-                      color: neighborhoodFilter === n ? selectedCity.color : "var(--text-muted)",
-                      fontSize: 13, fontWeight: 600, cursor: "pointer",
-                      fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
-                    }}
-                  >
-                    {n === "All" ? "All Areas" : n}
-                  </button>
-                ))}
-              </div>
-            )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Size */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Size</span>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {["All", "Studio", "1 Bedroom", "2 Bedroom", "Shared Room"].map((f) => (
+                      <button key={f} onClick={() => setFilter(f)} style={{
+                        padding: "6px 14px", borderRadius: 100, cursor: "pointer",
+                        border: filter === f ? "none" : "1px solid var(--input-border)",
+                        background: filter === f ? `${selectedCity.color}22` : "transparent",
+                        color: filter === f ? selectedCity.color : "var(--text-muted)",
+                        fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s ease",
+                      }}>{f === "All" ? "Any" : f}</button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Row 3: price + transport filters */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
-              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <span style={{
-                  position: "absolute", left: 14, fontSize: 13, fontWeight: 600,
-                  color: priceFilter ? selectedCity.color : "var(--text-muted)",
-                  pointerEvents: "none", userSelect: "none",
-                }}>$</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="50"
-                  placeholder="Max price/mo"
-                  value={priceFilter}
-                  onChange={(e) => setPriceFilter(e.target.value)}
-                  style={{
-                    padding: "9px 16px 9px 24px", borderRadius: 100, width: 170,
-                    border: priceFilter ? "none" : "1px solid var(--input-border)",
-                    background: priceFilter ? `${selectedCity.color}25` : "transparent",
-                    color: priceFilter ? selectedCity.color : "var(--text-muted)",
-                    fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                    outline: "none",
-                  }}
-                />
-                {priceFilter && (
-                  <button
-                    onClick={() => setPriceFilter("")}
-                    style={{
-                      position: "absolute", right: 12, background: "none", border: "none",
-                      color: selectedCity.color, fontSize: 14, cursor: "pointer",
-                      lineHeight: 1, padding: 0,
-                    }}
-                  >×</button>
+                {/* Area */}
+                {neighborhoods.length > 1 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Area</span>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {["All", ...neighborhoods].map((n) => (
+                        <button key={n} onClick={() => setNeighborhoodFilter(n)} style={{
+                          padding: "6px 14px", borderRadius: 100, cursor: "pointer",
+                          border: neighborhoodFilter === n ? "none" : "1px solid var(--input-border)",
+                          background: neighborhoodFilter === n ? `${selectedCity.color}22` : "transparent",
+                          color: neighborhoodFilter === n ? selectedCity.color : "var(--text-muted)",
+                          fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s ease",
+                        }}>{n === "All" ? "Any" : n}</button>
+                      ))}
+                    </div>
+                  </div>
                 )}
+
+                {/* Transit */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Transit</span>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {[{ id: "All", label: "Any" }, { id: "Walk", label: "🚶 Walk" }, { id: "Bike", label: "🚲 Bike" }, { id: "Public Transit", label: "🚇 Transit" }, { id: "Car", label: "🚗 Car" }].map((t) => (
+                      <button key={t.id} onClick={() => setTransportFilter(t.id)} style={{
+                        padding: "6px 14px", borderRadius: 100, cursor: "pointer",
+                        border: transportFilter === t.id ? "none" : "1px solid var(--input-border)",
+                        background: transportFilter === t.id ? `${selectedCity.color}22` : "transparent",
+                        color: transportFilter === t.id ? selectedCity.color : "var(--text-muted)",
+                        fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s ease",
+                      }}>{t.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Budget */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.08em", textTransform: "uppercase", width: 56, flexShrink: 0 }}>Budget</span>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                    <span style={{ position: "absolute", left: 12, fontSize: 12, fontWeight: 600, color: priceFilter ? selectedCity.color : "var(--text-muted)", pointerEvents: "none" }}>$</span>
+                    <input type="number" min="0" step="50" placeholder="Max /mo" value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)} style={{
+                      padding: "6px 32px 6px 22px", borderRadius: 100, width: 150, outline: "none",
+                      border: priceFilter ? "none" : "1px solid var(--input-border)",
+                      background: priceFilter ? `${selectedCity.color}22` : "transparent",
+                      color: priceFilter ? selectedCity.color : "var(--text-muted)",
+                      fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                    }} />
+                    {priceFilter && (
+                      <button onClick={() => setPriceFilter("")} style={{ position: "absolute", right: 10, background: "none", border: "none", color: selectedCity.color, fontSize: 14, cursor: "pointer", lineHeight: 1, padding: 0 }}>×</button>
+                    )}
+                  </div>
+                </div>
               </div>
-              {[
-                { id: "All", label: "Any transit" },
-                { id: "Walk", label: "🚶 Walk" },
-                { id: "Bike", label: "🚲 Bike" },
-                { id: "Public Transit", label: "🚇 Public Transit" },
-                { id: "Car", label: "🚗 Car" },
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTransportFilter(t.id)}
-                  style={{
-                    padding: "9px 18px", borderRadius: 100,
-                    border: transportFilter === t.id ? "none" : "1px solid var(--input-border)",
-                    background: transportFilter === t.id ? `${selectedCity.color}25` : "transparent",
-                    color: transportFilter === t.id ? selectedCity.color : "var(--text-muted)",
-                    fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s ease",
-                  }}
-                >
-                  {t.label}
-                </button>
-              ))}
             </div>
 
             {/* Listing count + clear highlight */}
@@ -871,6 +875,7 @@ export default function InternHub() {
                       cityId={selectedCity.id}
                       onSelectListing={setHighlightedListingId}
                       highlightedListingId={highlightedListingId}
+                      searchPin={searchPin}
                     />
                   </div>
                 </div>

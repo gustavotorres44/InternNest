@@ -4,6 +4,30 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 
+function searchPinIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="
+      font-size:28px;line-height:1;
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+      transform:translateY(-50%);
+    ">📍</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 28],
+    popupAnchor: [0, -30],
+  });
+}
+
+function FlyToPin({ searchPin }) {
+  const map = useMap();
+  useEffect(() => {
+    if (searchPin) {
+      map.flyTo([searchPin.lat, searchPin.lng], 15, { duration: 1.2 });
+    }
+  }, [searchPin, map]);
+  return null;
+}
+
 function makeIcon(color, highlighted) {
   const size = highlighted ? 22 : 14;
   const border = highlighted ? "3px" : "2.5px";
@@ -38,7 +62,7 @@ function FitBounds({ listingKey, listings }) {
   return null;
 }
 
-export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId }) {
+export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin }) {
   const withCoords = listings.filter(l => l.lat && l.lng);
   if (withCoords.length === 0) return null;
 
@@ -68,6 +92,17 @@ export default function ApartmentMap({ listings, cityColor, darkMode, cityId, on
           maxZoom={19}
         />
         <FitBounds listingKey={listingKey} listings={withCoords} />
+        <FlyToPin searchPin={searchPin} />
+        {searchPin && (
+          <Marker position={[searchPin.lat, searchPin.lng]} icon={searchPinIcon()} zIndexOffset={2000}>
+            <Popup>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", padding: "2px 0", minWidth: 140 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>📍 {searchPin.label}</div>
+                <div style={{ color: "#888", fontSize: 11 }}>Searched location</div>
+              </div>
+            </Popup>
+          </Marker>
+        )}
         {withCoords.map(l => {
           const isHighlighted = l.id === highlightedListingId;
           return (

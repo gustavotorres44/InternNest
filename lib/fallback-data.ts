@@ -350,49 +350,50 @@ export type InterestGroup = {
   members: number;
   emoji: string;
   category: string;
+  link?: string;
 };
 
 export const FALLBACK_INTEREST_GROUPS: Record<string, InterestGroup[]> = {
   sf: [
-    { name: "SF Intern Hikers", members: 234, emoji: "🥾", category: "Outdoors" },
-    { name: "Bay Area Tech Talks", members: 189, emoji: "💻", category: "Professional" },
-    { name: "Mission District Foodies", members: 312, emoji: "🌮", category: "Food" },
-    { name: "Golden Gate Runners", members: 156, emoji: "🏃", category: "Fitness" },
+    { name: "SF Intern Hikers", members: 234, emoji: "🥾", category: "Outdoors", link: "https://www.meetup.com/find/?keywords=hiking&location=San+Francisco%2C+CA&source=EVENTS" },
+    { name: "Bay Area Tech Talks", members: 189, emoji: "💻", category: "Professional", link: "https://www.meetup.com/find/?keywords=tech+talks&location=San+Francisco%2C+CA&source=EVENTS" },
+    { name: "Mission District Foodies", members: 312, emoji: "🌮", category: "Food", link: "https://www.meetup.com/find/?keywords=food&location=San+Francisco%2C+CA&source=EVENTS" },
+    { name: "Golden Gate Runners", members: 156, emoji: "🏃", category: "Fitness", link: "https://www.meetup.com/find/?keywords=running&location=San+Francisco%2C+CA&source=EVENTS" },
   ],
   ny: [
-    { name: "NYC Intern Networking", members: 567, emoji: "🤝", category: "Professional" },
-    { name: "Central Park Joggers", members: 289, emoji: "🏃", category: "Fitness" },
-    { name: "Brooklyn Art Crawls", members: 198, emoji: "🎨", category: "Culture" },
-    { name: "Manhattan Foodies", members: 445, emoji: "🍕", category: "Food" },
+    { name: "NYC Intern Networking", members: 567, emoji: "🤝", category: "Professional", link: "https://www.meetup.com/find/?keywords=intern+networking&location=New+York%2C+NY&source=EVENTS" },
+    { name: "Central Park Joggers", members: 289, emoji: "🏃", category: "Fitness", link: "https://www.meetup.com/find/?keywords=running&location=New+York%2C+NY&source=EVENTS" },
+    { name: "Brooklyn Art Crawls", members: 198, emoji: "🎨", category: "Culture", link: "https://www.meetup.com/find/?keywords=art+crawl&location=Brooklyn%2C+NY&source=EVENTS" },
+    { name: "Manhattan Foodies", members: 445, emoji: "🍕", category: "Food", link: "https://www.meetup.com/find/?keywords=food&location=New+York%2C+NY&source=EVENTS" },
   ],
   bos: [
-    { name: "Harbor Walk Club", members: 134, emoji: "🚶", category: "Outdoors" },
-    { name: "Boston Intern Socials", members: 201, emoji: "🎉", category: "Social" },
-    { name: "Cambridge Book Club", members: 89, emoji: "📖", category: "Culture" },
+    { name: "Harbor Walk Club", members: 134, emoji: "🚶", category: "Outdoors", link: "https://www.meetup.com/find/?keywords=walking&location=Boston%2C+MA&source=EVENTS" },
+    { name: "Boston Intern Socials", members: 201, emoji: "🎉", category: "Social", link: "https://www.meetup.com/find/?keywords=intern+social&location=Boston%2C+MA&source=EVENTS" },
+    { name: "Cambridge Book Club", members: 89, emoji: "📖", category: "Culture", link: "https://www.meetup.com/find/?keywords=book+club&location=Cambridge%2C+MA&source=EVENTS" },
   ],
   chi: [
-    { name: "Lakefront Volleyball", members: 178, emoji: "🏐", category: "Fitness" },
-    { name: "Deep Dish Enthusiasts", members: 234, emoji: "🍕", category: "Food" },
-    { name: "Chi-Town Intern Mixers", members: 312, emoji: "🎉", category: "Social" },
+    { name: "Lakefront Volleyball", members: 178, emoji: "🏐", category: "Fitness", link: "https://www.meetup.com/find/?keywords=volleyball&location=Chicago%2C+IL&source=EVENTS" },
+    { name: "Deep Dish Enthusiasts", members: 234, emoji: "🍕", category: "Food", link: "https://www.meetup.com/find/?keywords=food&location=Chicago%2C+IL&source=EVENTS" },
+    { name: "Chi-Town Intern Mixers", members: 312, emoji: "🎉", category: "Social", link: "https://www.meetup.com/find/?keywords=intern+mixer&location=Chicago%2C+IL&source=EVENTS" },
   ],
   atl: [
-    { name: "Beltline Walkers", members: 198, emoji: "🚶", category: "Outdoors" },
-    { name: "ATL Music Scene", members: 167, emoji: "🎵", category: "Culture" },
-    { name: "Peach State Foodies", members: 145, emoji: "🍑", category: "Food" },
+    { name: "Beltline Walkers", members: 198, emoji: "🚶", category: "Outdoors", link: "https://www.meetup.com/find/?keywords=beltline&location=Atlanta%2C+GA&source=EVENTS" },
+    { name: "ATL Music Scene", members: 167, emoji: "🎵", category: "Culture", link: "https://www.meetup.com/find/?keywords=music&location=Atlanta%2C+GA&source=EVENTS" },
+    { name: "Peach State Foodies", members: 145, emoji: "🍑", category: "Food", link: "https://www.meetup.com/find/?keywords=food&location=Atlanta%2C+GA&source=EVENTS" },
   ],
   sea: [
-    { name: "PNW Hikers", members: 278, emoji: "⛰️", category: "Outdoors" },
-    { name: "Seattle Coffee Crawl", members: 189, emoji: "☕", category: "Food" },
-    { name: "Tech Intern Meetups", members: 234, emoji: "💻", category: "Professional" },
+    { name: "PNW Hikers", members: 278, emoji: "⛰️", category: "Outdoors", link: "https://www.meetup.com/find/?keywords=hiking&location=Seattle%2C+WA&source=EVENTS" },
+    { name: "Seattle Coffee Crawl", members: 189, emoji: "☕", category: "Food", link: "https://www.meetup.com/find/?keywords=coffee&location=Seattle%2C+WA&source=EVENTS" },
+    { name: "Tech Intern Meetups", members: 234, emoji: "💻", category: "Professional", link: "https://www.meetup.com/find/?keywords=tech+intern&location=Seattle%2C+WA&source=EVENTS" },
   ],
   la: [
-    { name: "Beach Volleyball LA", members: 212, emoji: "🏐", category: "Fitness" },
-    { name: "Taco Tuesday Crew", members: 389, emoji: "🌮", category: "Food" },
-    { name: "Sunset Hikes", members: 267, emoji: "🌅", category: "Outdoors" },
+    { name: "Beach Volleyball LA", members: 212, emoji: "🏐", category: "Fitness", link: "https://www.meetup.com/find/?keywords=beach+volleyball&location=Los+Angeles%2C+CA&source=EVENTS" },
+    { name: "Taco Tuesday Crew", members: 389, emoji: "🌮", category: "Food", link: "https://www.meetup.com/find/?keywords=food&location=Los+Angeles%2C+CA&source=EVENTS" },
+    { name: "Sunset Hikes", members: 267, emoji: "🌅", category: "Outdoors", link: "https://www.meetup.com/find/?keywords=hiking&location=Los+Angeles%2C+CA&source=EVENTS" },
   ],
   dc: [
-    { name: "Monument Runners", members: 189, emoji: "🏃", category: "Fitness" },
-    { name: "DC Policy Nerds", members: 234, emoji: "📜", category: "Professional" },
-    { name: "Museum Hoppers", members: 312, emoji: "🏛️", category: "Culture" },
+    { name: "Monument Runners", members: 189, emoji: "🏃", category: "Fitness", link: "https://www.meetup.com/find/?keywords=running&location=Washington%2C+DC&source=EVENTS" },
+    { name: "DC Policy Nerds", members: 234, emoji: "📜", category: "Professional", link: "https://www.meetup.com/find/?keywords=policy&location=Washington%2C+DC&source=EVENTS" },
+    { name: "Museum Hoppers", members: 312, emoji: "🏛️", category: "Culture", link: "https://www.meetup.com/find/?keywords=museum&location=Washington%2C+DC&source=EVENTS" },
   ],
 };

@@ -142,7 +142,8 @@ export async function getInterestGroups(cityId: string): Promise<InterestGroup[]
       name: row.name,
       members: row.members,
       emoji: row.emoji,
-      category: row.category
+      category: row.category,
+      link: row.link ?? undefined,
     }));
   } catch (err) {
     console.warn(`Failed to fetch interest groups for city ${cityId}:`, err);
