@@ -44,23 +44,24 @@ const QUOTES = [
   { text: "Stressful part was finding where to stay in 2 months and finding a car — I had no car at the time.", company: "BMW Intern", city: "New York", color: "#0066b1" },
 ];
 
-const CityCard = ({ city, isSelected, onClick, index }) => (
+const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   <div
     onClick={onClick}
     style={{
-      padding: "16px 20px",
-      borderRadius: 16,
+      padding: "14px 18px",
+      borderRadius: 14,
       cursor: "pointer",
       background: isSelected ? city.color : "var(--surface)",
       border: isSelected ? "2px solid transparent" : "2px solid var(--border)",
       transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
-      transform: isSelected ? "scale(1.03)" : "scale(1)",
+      transform: isSelected ? "scale(1.02)" : "scale(1)",
       display: "flex",
       alignItems: "center",
       gap: 12,
       color: isSelected ? "#fff" : "var(--text-muted)",
       animation: `fadeSlideUp 0.5s ease ${index * 0.06}s both`,
-      minWidth: "fit-content",
+      width: sidebar ? "100%" : undefined,
+      minWidth: sidebar ? undefined : "fit-content",
     }}
   >
     <span style={{ fontSize: 24 }}>{city.emoji}</span>
@@ -592,30 +593,39 @@ export default function InternHub() {
           </div>
         </div>
 
-        {/* City Selector */}
-        <section style={{ marginBottom: 36 }}>
-          <div style={{
-            display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8,
-            WebkitOverflowScrolling: "touch",
-          }}>
-            {citiesData.map((city, i) => (
-              <CityCard
-                key={city.id}
-                city={city}
-                isSelected={selectedCity.id === city.id}
-                onClick={() => {
-                  setSelectedCity(city);
-                  setFilter("All");
-                  setSearchQuery("");
-                  setPriceFilter("");
-                  setTransportFilter("All");
-                  setNeighborhoodFilter("All");
-                }}
-                index={i}
-              />
-            ))}
+        {/* Two-column layout: sidebar + content */}
+        <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+
+          {/* Left: City Sidebar */}
+          <div style={{ width: 210, flexShrink: 0 }}>
+            <div style={{ position: "sticky", top: 24 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12, paddingLeft: 2 }}>
+                Select City
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {citiesData.map((city, i) => (
+                  <CityCard
+                    key={city.id}
+                    city={city}
+                    isSelected={selectedCity.id === city.id}
+                    onClick={() => {
+                      setSelectedCity(city);
+                      setFilter("All");
+                      setSearchQuery("");
+                      setPriceFilter("");
+                      setTransportFilter("All");
+                      setNeighborhoodFilter("All");
+                    }}
+                    index={i}
+                    sidebar
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
+
+          {/* Right: Main content */}
+          <div style={{ flex: 1, minWidth: 0 }}>
 
         {/* City Stats Bar */}
         <div style={{
@@ -915,6 +925,9 @@ export default function InternHub() {
             </div>
           </section>
         )}
+
+          </div>{/* end right content */}
+        </div>{/* end two-column layout */}
 
         {/* Footer */}
         <footer style={{
