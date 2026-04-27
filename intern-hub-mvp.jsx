@@ -1009,16 +1009,21 @@ export default function InternHub() {
 
               {/* Listings column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-                {displayListings.length > 0 ? displayListings.map((l, i) => (
-                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} isSaved={savedListingIds.includes(l.id)} onToggleSave={toggleSaved} onNeighborhoodClick={handleNeighborhoodClick} />
-                )) : (
-                  <div style={{
-                    textAlign: "center", padding: 60, color: "var(--text-muted)",
-                    fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
-                  }}>
-                    No listings match your search. Try adjusting filters.
-                  </div>
-                )}
+                {(() => {
+                  const guideNames = new Set(
+                    ((NEIGHBORHOODS[neighborhoodKey(selectedCity.id)] || {}).neighborhoods || []).map(n => n.name)
+                  );
+                  return displayListings.length > 0 ? displayListings.map((l, i) => (
+                    <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} isSaved={savedListingIds.includes(l.id)} onToggleSave={toggleSaved} onNeighborhoodClick={l.neighborhood && guideNames.has(l.neighborhood) ? handleNeighborhoodClick : undefined} />
+                  )) : (
+                    <div style={{
+                      textAlign: "center", padding: 60, color: "var(--text-muted)",
+                      fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
+                    }}>
+                      No listings match your search. Try adjusting filters.
+                    </div>
+                  );
+                })()}
 
                 {/* Post CTA */}
                 <div style={{
