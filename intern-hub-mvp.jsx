@@ -1010,15 +1010,16 @@ export default function InternHub() {
 
       {/* Add Listing Modal */}
       {showAddListing && (() => {
+        const inputStyle = { padding: "9px 14px", borderRadius: 10, border: "1px solid #e2e5ea", background: "#f7f8fa", color: "#111", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none", width: "100%", boxSizing: "border-box" };
         const field = (label, key, type = "text", opts = {}) => (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</label>
+            <label style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</label>
             {opts.select ? (
-              <select value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} style={{ padding: "9px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface-hover)", color: "var(--text)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }}>
+              <select value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} style={inputStyle}>
                 {opts.select.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             ) : (
-              <input type={type} value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} placeholder={opts.placeholder || ""} style={{ padding: "9px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface-hover)", color: "var(--text)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }} />
+              <input type={type} value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} placeholder={opts.placeholder || ""} style={inputStyle} />
             )}
           </div>
         );
@@ -1045,11 +1046,11 @@ export default function InternHub() {
           setAddForm({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
         };
         return (
-          <div onClick={e => e.target === e.currentTarget && setShowAddListing(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, backdropFilter: "blur(4px)" }}>
-            <div style={{ background: "var(--surface)", borderRadius: 24, padding: 32, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }}>
+          <div onClick={e => e.target === e.currentTarget && setShowAddListing(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: 32, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, color: "var(--text)" }}>Post a Listing in {selectedCity.name}</div>
-                <button onClick={() => setShowAddListing(false)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "var(--text-muted)", lineHeight: 1, padding: 4 }}>×</button>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, color: "#111" }}>Post a Listing in {selectedCity.name}</div>
+                <button onClick={() => setShowAddListing(false)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#9ca3af", lineHeight: 1, padding: 4 }}>×</button>
               </div>
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {field("Title *", "title", "text", { placeholder: "e.g. Chelsea Studio near Google" })}
@@ -1068,7 +1069,7 @@ export default function InternHub() {
                   {field("Company / Employer", "posterCompany", "text", { placeholder: "Google" })}
                 </div>
                 <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                  <button type="button" onClick={() => setShowAddListing(false)} style={{ flex: 1, padding: "12px 0", borderRadius: 100, border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
+                  <button type="button" onClick={() => setShowAddListing(false)} style={{ flex: 1, padding: "12px 0", borderRadius: 100, border: "1px solid #e2e5ea", background: "#f7f8fa", color: "#6b7280", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
                   <button type="submit" style={{ flex: 2, padding: "12px 0", borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Post Listing</button>
                 </div>
               </form>
