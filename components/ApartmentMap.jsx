@@ -92,17 +92,19 @@ function FitBounds({ listingKey, listings }) {
   return null;
 }
 
-export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin, transitStops = [] }) {
+export default function ApartmentMap({ listings, cityColor, darkMode, cityId, onSelectListing, highlightedListingId, searchPin, transitStops = [], cityCenter }) {
   const [showTransit, setShowTransit] = useState(false);
   const withCoords = listings.filter(l => l.lat && l.lng);
-  if (withCoords.length === 0 && !searchPin) return null;
+  if (withCoords.length === 0 && !searchPin && !cityCenter) return null;
 
   const center = withCoords.length > 0
     ? [
         withCoords.reduce((s, l) => s + l.lat, 0) / withCoords.length,
         withCoords.reduce((s, l) => s + l.lng, 0) / withCoords.length,
       ]
-    : [searchPin.lat, searchPin.lng];
+    : searchPin
+    ? [searchPin.lat, searchPin.lng]
+    : cityCenter;
 
   const tileUrl = darkMode
     ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

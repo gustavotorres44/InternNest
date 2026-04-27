@@ -38,10 +38,24 @@ const TRANSIT_STOPS = {
     { name: "Arts Center", lat: 33.7897, lng: -84.3882 },
   ],
   ny: [
-    { name: "14th St – 8th Ave", lat: 40.7404, lng: -74.0019 },
+    { name: "14th St – 8th Ave (A/C/E/L)", lat: 40.7404, lng: -74.0019 },
     { name: "23rd St (C/E)", lat: 40.7443, lng: -74.0001 },
     { name: "23rd St (1)", lat: 40.7427, lng: -74.0002 },
     { name: "14th St (1/2/3)", lat: 40.7382, lng: -74.0001 },
+    { name: "34th St – Penn Station", lat: 40.7506, lng: -73.9971 },
+    { name: "Times Sq – 42nd St", lat: 40.7557, lng: -73.9870 },
+    { name: "Grand Central – 42nd St", lat: 40.7527, lng: -73.9772 },
+    { name: "Union Square – 14th St", lat: 40.7353, lng: -73.9903 },
+    { name: "Fulton St", lat: 40.7092, lng: -74.0079 },
+    { name: "Wall St (2/3)", lat: 40.7075, lng: -74.0115 },
+    { name: "Chambers St (1/2/3)", lat: 40.7152, lng: -74.0090 },
+    { name: "Canal St (A/C/E)", lat: 40.7226, lng: -74.0051 },
+    { name: "Houston St (1)", lat: 40.7282, lng: -74.0050 },
+    { name: "Christopher St (1)", lat: 40.7332, lng: -74.0027 },
+    { name: "50th St (1/2)", lat: 40.7617, lng: -73.9837 },
+    { name: "Columbus Circle (A/B/C/D)", lat: 40.7681, lng: -73.9820 },
+    { name: "72nd St (1/2/3)", lat: 40.7785, lng: -73.9820 },
+    { name: "86th St (4/5/6)", lat: 40.7773, lng: -73.9557 },
   ],
   sf: [
     { name: "SF 4th & King (Caltrain)", lat: 37.7764, lng: -122.3952 },
@@ -394,6 +408,9 @@ export default function InternHub() {
   const [highlightedListingId, setHighlightedListingId] = useState(null);
   const [searchPin, setSearchPin] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [showAddListing, setShowAddListing] = useState(false);
+  const [localListings, setLocalListings] = useState([]);
+  const [addForm, setAddForm] = useState({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
 
   useEffect(() => {
     if (!searchQuery || searchQuery.trim().length < 4) { setSearchPin(null); return; }
@@ -415,7 +432,10 @@ export default function InternHub() {
     { id: "community", label: "Community", icon: "👥" },
   ];
 
-  const listings = listingsData[selectedCity.id] || [];
+  const listings = [
+    ...(listingsData[selectedCity.id] || []),
+    ...localListings.filter(l => l.cityId === selectedCity.id),
+  ];
   const neighborhoods = [...new Set(listings.map(l => l.neighborhood).filter(Boolean))];
   const searchMatchesAnyListing = !searchQuery || listings.some(l => l.title.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredListings = listings.filter((l) => {
@@ -426,7 +446,7 @@ export default function InternHub() {
     const matchesNeighborhood = neighborhoodFilter === "All" || l.neighborhood === neighborhoodFilter;
     return matchesType && matchesSearch && matchesPrice && matchesNeighborhood;
   });
-  const hasMapData = filteredListings.some(l => l.lat && l.lng) || !!searchPin;
+  const hasMapData = filteredListings.some(l => l.lat && l.lng) || !!searchPin || (TRANSIT_STOPS[selectedCity.id] || []).length > 0;
   const displayListings = highlightedListingId && filteredListings.some(l => l.id === highlightedListingId)
     ? [filteredListings.find(l => l.id === highlightedListingId), ...filteredListings.filter(l => l.id !== highlightedListingId)]
     : filteredListings;
@@ -870,7 +890,7 @@ export default function InternHub() {
                   <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                     Help fellow interns find housing in {selectedCity.name}
                   </div>
-                  <button style={{
+                  <button onClick={() => setShowAddListing(true)} style={{
                     padding: "12px 32px", borderRadius: 100, border: "none",
                     background: selectedCity.color, color: "#fff", fontSize: 15,
                     fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
@@ -893,6 +913,7 @@ export default function InternHub() {
                       highlightedListingId={highlightedListingId}
                       searchPin={searchPin}
                       transitStops={TRANSIT_STOPS[selectedCity.id] || []}
+                      cityCenter={[selectedCity.lat, selectedCity.lng]}
                     />
                   </div>
                 </div>
@@ -986,6 +1007,75 @@ export default function InternHub() {
           </div>
         </footer>
       </div>
+
+      {/* Add Listing Modal */}
+      {showAddListing && (() => {
+        const field = (label, key, type = "text", opts = {}) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</label>
+            {opts.select ? (
+              <select value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} style={{ padding: "9px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface-hover)", color: "var(--text)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }}>
+                {opts.select.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ) : (
+              <input type={type} value={addForm[key]} onChange={e => setAddForm(f => ({ ...f, [key]: e.target.value }))} placeholder={opts.placeholder || ""} style={{ padding: "9px 14px", borderRadius: 10, border: "1px solid var(--border)", background: "var(--surface-hover)", color: "var(--text)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }} />
+            )}
+          </div>
+        );
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (!addForm.title || !addForm.price || !addForm.poster) return;
+          const newListing = {
+            id: Date.now(),
+            cityId: selectedCity.id,
+            title: addForm.title,
+            type: addForm.type,
+            price: parseInt(addForm.price) || 0,
+            dates: addForm.dates || "Jun 1 – Aug 31",
+            neighborhood: addForm.neighborhood || undefined,
+            link: addForm.link || undefined,
+            poster: addForm.poster,
+            posterCompany: addForm.posterCompany || "",
+            amenities: addForm.amenities ? addForm.amenities.split(",").map(s => s.trim()).filter(Boolean) : [],
+            verified: false,
+            img: "🏠",
+          };
+          setLocalListings(prev => [...prev, newListing]);
+          setShowAddListing(false);
+          setAddForm({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
+        };
+        return (
+          <div onClick={e => e.target === e.currentTarget && setShowAddListing(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, backdropFilter: "blur(4px)" }}>
+            <div style={{ background: "var(--surface)", borderRadius: 24, padding: 32, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, color: "var(--text)" }}>Post a Listing in {selectedCity.name}</div>
+                <button onClick={() => setShowAddListing(false)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "var(--text-muted)", lineHeight: 1, padding: 4 }}>×</button>
+              </div>
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {field("Title *", "title", "text", { placeholder: "e.g. Chelsea Studio near Google" })}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {field("Type", "type", "text", { select: ["Studio", "1 Bedroom", "2 Bedroom", "Shared Room"] })}
+                  {field("Price / mo *", "price", "number", { placeholder: "2500" })}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {field("Dates", "dates", "text", { placeholder: "Jun 1 – Aug 31" })}
+                  {field("Neighborhood", "neighborhood", "text", { placeholder: "e.g. Chelsea" })}
+                </div>
+                {field("Listing URL (optional)", "link", "url", { placeholder: "https://..." })}
+                {field("Amenities (comma-separated)", "amenities", "text", { placeholder: "WiFi, AC, Gym, 5 min to office" })}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {field("Your Name *", "poster", "text", { placeholder: "Alex R." })}
+                  {field("Company / Employer", "posterCompany", "text", { placeholder: "Google" })}
+                </div>
+                <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                  <button type="button" onClick={() => setShowAddListing(false)} style={{ flex: 1, padding: "12px 0", borderRadius: 100, border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
+                  <button type="submit" style={{ flex: 2, padding: "12px 0", borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Post Listing</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
