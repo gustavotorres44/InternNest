@@ -874,6 +874,16 @@ export default function InternHub() {
               }}
             >
               <span>{tab.icon}</span> {tab.label}
+              {tab.id === "housing" && savedListingIds.length > 0 && (
+                <span style={{
+                  background: activeTab === "housing" ? "rgba(255,255,255,0.25)" : `${selectedCity.color}20`,
+                  color: activeTab === "housing" ? "#fff" : selectedCity.color,
+                  borderRadius: 100, fontSize: 11, fontWeight: 700,
+                  padding: "1px 7px", lineHeight: "18px",
+                }}>
+                  {savedListingIds.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
