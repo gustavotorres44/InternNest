@@ -409,6 +409,7 @@ export default function InternHub() {
   const [searchPin, setSearchPin] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [showAddListing, setShowAddListing] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [localListings, setLocalListings] = useState([]);
   const [addForm, setAddForm] = useState({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
 
@@ -566,14 +567,14 @@ export default function InternHub() {
             >
               {darkMode ? "☀️" : "🌙"}
             </button>
-            <button style={{
+            <button onClick={() => setShowComingSoon(true)} style={{
               padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
               background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
               cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
             }}>
               Log in
             </button>
-            <button style={{
+            <button onClick={() => setShowComingSoon(true)} style={{
               padding: "10px 22px", borderRadius: 100, border: "none",
               background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600,
               cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
@@ -1007,6 +1008,18 @@ export default function InternHub() {
           </div>
         </footer>
       </div>
+
+      {/* Coming Soon Modal */}
+      {showComingSoon && (
+        <div onClick={() => setShowComingSoon(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 24, padding: "40px 36px", maxWidth: 380, width: "100%", textAlign: "center", boxShadow: "0 24px 60px rgba(0,0,0,0.15)" }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>🚀</div>
+            <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 24, color: "#111", marginBottom: 10 }}>Coming Soon</div>
+            <div style={{ fontSize: 15, color: "#6b7280", lineHeight: 1.6, marginBottom: 28 }}>We'll have this feature ready shortly! Stay tuned.</div>
+            <button onClick={() => setShowComingSoon(false)} style={{ padding: "11px 32px", borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Got it</button>
+          </div>
+        </div>
+      )}
 
       {/* Add Listing Modal */}
       {showAddListing && (() => {
