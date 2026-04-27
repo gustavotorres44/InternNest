@@ -8,7 +8,8 @@ import {
   FALLBACK_CITIES as CITIES,
   FALLBACK_LISTINGS as LISTINGS,
   FALLBACK_TRANSPORT as TRANSPORT,
-  FALLBACK_INTEREST_GROUPS as INTEREST_GROUPS
+  FALLBACK_INTEREST_GROUPS as INTEREST_GROUPS,
+  FALLBACK_NEIGHBORHOODS as NEIGHBORHOODS,
 } from "./lib/fallback-data";
 import { getCities, getListings, getTransport, getInterestGroups } from "./lib/data";
 
@@ -105,6 +106,72 @@ const TRANSIT_STOPS = {
   ],
 };
 
+const ScoreBar = ({ label, score, maxScore, color }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <span style={{ fontSize: 11, color: "var(--text-subtle)", width: 64, flexShrink: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
+    <div style={{ flex: 1, height: 6, borderRadius: 100, background: "var(--surface-hover)", overflow: "hidden" }}>
+      <div style={{ width: `${(score / maxScore) * 100}%`, height: "100%", borderRadius: 100, background: color, transition: "width 0.6s ease" }} />
+    </div>
+    <span style={{ fontSize: 12, fontWeight: 700, color, width: 28, textAlign: "right" }}>{score}</span>
+  </div>
+);
+
+const NeighborhoodCard = ({ n, index, cityColor, isHighlighted }) => {
+  const color = n.color || cityColor;
+  return (
+    <div style={{
+      background: isHighlighted ? `${color}08` : "var(--surface)",
+      borderRadius: 20, padding: 24,
+      border: isHighlighted ? `2px solid ${color}` : "1px solid var(--border)",
+      boxShadow: isHighlighted ? `0 4px 20px ${color}20` : "none",
+      animation: `fadeSlideUp 0.5s ease ${index * 0.08}s both`,
+      transition: "all 0.3s ease",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+            <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>{n.name}</div>
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif" }}>{n.vibe}</div>
+        </div>
+        <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color, fontFamily: "'DM Sans', sans-serif" }}>${n.avgRent.toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month avg</div>
+        </div>
+      </div>
+
+      <div style={{ padding: "10px 14px", borderRadius: 10, background: `${color}12`, marginBottom: 16, fontSize: 13, color: "var(--text-med)", fontStyle: "italic" }}>
+        ✨ {n.highlight}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+        <ScoreBar label="Commute" score={n.commuteScore} maxScore={10} color={color} />
+        <ScoreBar label="Safety" score={n.safetyScore} maxScore={10} color={color} />
+        <ScoreBar label="Cost" score={n.costScore} maxScore={10} color={color} />
+        <ScoreBar label="Walk" score={n.walkability} maxScore={100} color={color} />
+      </div>
+
+      <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 14, display: "flex", gap: 6, alignItems: "flex-start" }}>
+        <span>🚇</span><span>{n.transitNotes}</span>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+        {n.bestFor.map(b => (
+          <span key={b} style={{ padding: "4px 12px", borderRadius: 100, background: `${color}15`, color, fontSize: 12, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>{b}</span>
+        ))}
+      </div>
+
+      <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 8 }}>Popular Buildings</div>
+        {n.buildings.map(b => (
+          <div key={b} style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 3 }}>· {b}</div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   <div
     onClick={onClick}
@@ -137,7 +204,7 @@ const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect }) => {
+const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSaved, onToggleSave, onNeighborhoodClick }) => {
   return (
   <div
     style={{
@@ -182,11 +249,26 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect }) => 
           </div>
         </div>
       </div>
-      <div style={{ textAlign: "right" }}>
-        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 700, color: cityColor }}>
-          ${listing.price}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleSave && onToggleSave(listing.id); }}
+          style={{
+            width: 34, height: 34, borderRadius: "50%", border: "none", flexShrink: 0,
+            background: isSaved ? `${cityColor}20` : "var(--surface-hover)",
+            color: isSaved ? cityColor : "var(--text-subtle)",
+            fontSize: 17, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.2s ease",
+          }}
+          title={isSaved ? "Remove from saved" : "Save listing"}
+        >
+          {isSaved ? "♥" : "♡"}
+        </button>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 700, color: cityColor }}>
+            ${listing.price}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month</div>
         </div>
-        <div style={{ fontSize: 12, color: "var(--text-subtle)" }}>/month</div>
       </div>
     </div>
 
@@ -200,6 +282,22 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect }) => 
         </span>
       ))}
     </div>
+
+    {listing.neighborhood && onNeighborhoodClick && (
+      <button
+        onClick={(e) => { e.stopPropagation(); onNeighborhoodClick(listing.neighborhood); }}
+        style={{
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+          fontSize: 12, color: cityColor, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+          display: "flex", alignItems: "center", gap: 4, opacity: 0.8,
+          transition: "opacity 0.2s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.8"; }}
+      >
+        📍 {listing.neighborhood} · View neighborhood guide →
+      </button>
+    )}
 
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -412,6 +510,24 @@ export default function InternHub() {
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [localListings, setLocalListings] = useState([]);
   const [addForm, setAddForm] = useState({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
+  const [savedListingIds, setSavedListingIds] = useState([]);
+  const [activeNeighborhood, setActiveNeighborhood] = useState(null);
+
+  useEffect(() => {
+    try { setSavedListingIds(JSON.parse(localStorage.getItem("internnest-saved") || "[]")); } catch {}
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("internnest-saved", JSON.stringify(savedListingIds));
+  }, [savedListingIds]);
+
+  useEffect(() => {
+    setActiveNeighborhood(null);
+  }, [selectedCity.id]);
+
+  const toggleSaved = (id) => setSavedListingIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const neighborhoodKey = (id) => id === "ny" ? "nyc" : id;
+  const handleNeighborhoodClick = (name) => { setActiveTab("neighborhoods"); setActiveNeighborhood(name); };
 
   useEffect(() => {
     if (!searchQuery || searchQuery.trim().length < 4) { setSearchPin(null); return; }
@@ -429,6 +545,7 @@ export default function InternHub() {
 
   const tabs = [
     { id: "housing", label: "Housing", icon: "🏠" },
+    { id: "neighborhoods", label: "Neighborhoods", icon: "🏙️" },
     { id: "transport", label: "Transit", icon: "🚇" },
     { id: "community", label: "Community", icon: "👥" },
   ];
@@ -868,7 +985,7 @@ export default function InternHub() {
               {/* Listings column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
                 {displayListings.length > 0 ? displayListings.map((l, i) => (
-                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} />
+                  <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} isSaved={savedListingIds.includes(l.id)} onToggleSave={toggleSaved} onNeighborhoodClick={handleNeighborhoodClick} />
                 )) : (
                   <div style={{
                     textAlign: "center", padding: 60, color: "var(--text-muted)",
@@ -923,6 +1040,54 @@ export default function InternHub() {
             </div>
           </section>
         )}
+
+        {/* === NEIGHBORHOODS TAB === */}
+        {activeTab === "neighborhoods" && (() => {
+          const cityNeighborhoods = (NEIGHBORHOODS[neighborhoodKey(selectedCity.id)] || {}).neighborhoods || [];
+          return (
+            <section key={selectedCity.id + "-neighborhoods"}>
+              <div style={{
+                marginBottom: 24, padding: 20, borderRadius: 16,
+                background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}>
+                <span style={{ fontSize: 15, color: "var(--text-med)" }}>
+                  🏙️ Neighborhood guide for <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> — scored by commute, safety, cost & walkability
+                </span>
+                {activeNeighborhood && (
+                  <button
+                    onClick={() => setActiveNeighborhood(null)}
+                    style={{
+                      background: `${selectedCity.color}18`, border: `1px solid ${selectedCity.color}30`,
+                      color: selectedCity.color, borderRadius: 100, padding: "3px 10px",
+                      fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", flexShrink: 0,
+                    }}
+                  >
+                    Clear ×
+                  </button>
+                )}
+              </div>
+
+              {cityNeighborhoods.length === 0 ? (
+                <div style={{ textAlign: "center", padding: 60, color: "var(--text-muted)", fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)" }}>
+                  Neighborhood guide coming soon for {selectedCity.name}.
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 20 }}>
+                  {cityNeighborhoods.map((n, i) => (
+                    <NeighborhoodCard
+                      key={n.name}
+                      n={n}
+                      index={i}
+                      cityColor={selectedCity.color}
+                      isHighlighted={activeNeighborhood === n.name}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })()}
 
         {/* === TRANSPORT TAB === */}
         {activeTab === "transport" && (
