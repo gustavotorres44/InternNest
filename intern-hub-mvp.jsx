@@ -116,17 +116,22 @@ const ScoreBar = ({ label, score, maxScore, color }) => (
   </div>
 );
 
+const neighborhoodSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
 const NeighborhoodCard = ({ n, index, cityColor, isHighlighted }) => {
   const color = n.color || cityColor;
   return (
-    <div style={{
-      background: isHighlighted ? `${color}08` : "var(--surface)",
-      borderRadius: 20, padding: 24,
-      border: isHighlighted ? `2px solid ${color}` : "1px solid var(--border)",
-      boxShadow: isHighlighted ? `0 4px 20px ${color}20` : "none",
-      animation: `fadeSlideUp 0.5s ease ${index * 0.08}s both`,
-      transition: "all 0.3s ease",
-    }}>
+    <div
+      id={`neighborhood-${neighborhoodSlug(n.name)}`}
+      style={{
+        background: isHighlighted ? `${color}08` : "var(--surface)",
+        borderRadius: 20, padding: 24,
+        border: isHighlighted ? `2px solid ${color}` : "1px solid var(--border)",
+        boxShadow: isHighlighted ? `0 4px 20px ${color}20` : "none",
+        animation: `fadeSlideUp 0.5s ease ${index * 0.08}s both`,
+        transition: "all 0.3s ease",
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
@@ -524,6 +529,16 @@ export default function InternHub() {
   useEffect(() => {
     setActiveNeighborhood(null);
   }, [selectedCity.id]);
+
+  useEffect(() => {
+    if (!activeNeighborhood || activeTab !== "neighborhoods") return;
+    const slug = neighborhoodSlug(activeNeighborhood);
+    const t = setTimeout(() => {
+      const el = document.getElementById(`neighborhood-${slug}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [activeNeighborhood, activeTab]);
 
   const toggleSaved = (id) => setSavedListingIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const neighborhoodKey = (id) => id === "ny" ? "nyc" : id;
