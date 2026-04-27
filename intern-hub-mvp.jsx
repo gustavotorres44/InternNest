@@ -515,6 +515,9 @@ export default function InternHub() {
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [localListings, setLocalListings] = useState([]);
   const [addForm, setAddForm] = useState({ title: "", type: "Studio", price: "", dates: "Jun 1 – Aug 31", neighborhood: "", link: "", poster: "", posterCompany: "", amenities: "" });
+  const [localGroups, setLocalGroups] = useState([]);
+  const [showAddGroup, setShowAddGroup] = useState(false);
+  const [addGroupForm, setAddGroupForm] = useState({ name: "", category: "Social", emoji: "👥", link: "", creator: "", creatorCompany: "" });
   const [savedListingIds, setSavedListingIds] = useState([]);
   const [activeNeighborhood, setActiveNeighborhood] = useState(null);
 
@@ -1150,8 +1153,8 @@ export default function InternHub() {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {(interestGroupsData[selectedCity.id] || []).map((g, i) => (
-                <GroupCard key={g.name} g={g} index={i} cityColor={selectedCity.color} />
+              {[...(interestGroupsData[selectedCity.id] || []), ...localGroups.filter(g => g.cityId === selectedCity.id)].map((g, i) => (
+                <GroupCard key={g.name + i} g={g} index={i} cityColor={selectedCity.color} />
               ))}
             </div>
 
@@ -1167,7 +1170,7 @@ export default function InternHub() {
               <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                 Start a new group and find your people
               </div>
-              <button style={{
+              <button onClick={() => setShowAddGroup(true)} style={{
                 padding: "12px 32px", borderRadius: 100, border: "none",
                 background: selectedCity.color, color: "#fff", fontSize: 15,
                 fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
@@ -1217,6 +1220,77 @@ export default function InternHub() {
       )}
 
       {/* Add Listing Modal */}
+      {/* Add Group Modal */}
+      {showAddGroup && (() => {
+        const inputStyle = { padding: "9px 14px", borderRadius: 10, border: "1px solid #e2e5ea", background: "#f7f8fa", color: "#111", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none", width: "100%", boxSizing: "border-box" };
+        const field = (label, key, type = "text", opts = {}) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</label>
+            {opts.select ? (
+              <select value={addGroupForm[key]} onChange={e => setAddGroupForm(f => ({ ...f, [key]: e.target.value }))} style={inputStyle}>
+                {opts.select.map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            ) : (
+              <input type={type} value={addGroupForm[key]} onChange={e => setAddGroupForm(f => ({ ...f, [key]: e.target.value }))} placeholder={opts.placeholder || ""} style={inputStyle} />
+            )}
+          </div>
+        );
+        const EMOJI_OPTIONS = ["👥", "🏀", "🎮", "🍕", "🎵", "🏋️", "🚴", "🎨", "📚", "🧳", "🌮", "🎯", "🏖️", "🎲", "💻", "🌿"];
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (!addGroupForm.name || !addGroupForm.creator) return;
+          const newGroup = {
+            cityId: selectedCity.id,
+            name: addGroupForm.name,
+            category: addGroupForm.category,
+            emoji: addGroupForm.emoji,
+            link: addGroupForm.link || undefined,
+            members: 1,
+            creator: addGroupForm.creator,
+          };
+          setLocalGroups(prev => [...prev, newGroup]);
+          setShowAddGroup(false);
+          setAddGroupForm({ name: "", category: "Social", emoji: "👥", link: "", creator: "", creatorCompany: "" });
+        };
+        return (
+          <div onClick={e => e.target === e.currentTarget && setShowAddGroup(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: 32, width: "100%", maxWidth: 460, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, color: "#111" }}>Create a Group in {selectedCity.name}</div>
+                <button onClick={() => setShowAddGroup(false)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#9ca3af", lineHeight: 1, padding: 4 }}>×</button>
+              </div>
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {field("Group Name *", "name", "text", { placeholder: "e.g. SF Hiking Crew" })}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {field("Category", "category", "text", { select: ["Social", "Sports", "Tech", "Food & Drink", "Arts", "Fitness", "Gaming", "Music", "Professional", "Other"] })}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.07em" }}>Emoji</label>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {EMOJI_OPTIONS.map(em => (
+                        <button key={em} type="button" onClick={() => setAddGroupForm(f => ({ ...f, emoji: em }))} style={{
+                          width: 36, height: 36, borderRadius: 8, border: addGroupForm.emoji === em ? `2px solid ${selectedCity.color}` : "1px solid #e2e5ea",
+                          background: addGroupForm.emoji === em ? `${selectedCity.color}15` : "#f7f8fa",
+                          fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>{em}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {field("Group Link (Discord, Slack, WhatsApp…)", "link", "url", { placeholder: "https://discord.gg/..." })}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {field("Your Name *", "creator", "text", { placeholder: "Alex R." })}
+                  {field("Company / Employer", "creatorCompany", "text", { placeholder: "Google" })}
+                </div>
+                <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                  <button type="button" onClick={() => setShowAddGroup(false)} style={{ flex: 1, padding: "12px 0", borderRadius: 100, border: "1px solid #e2e5ea", background: "#f7f8fa", color: "#6b7280", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
+                  <button type="submit" style={{ flex: 2, padding: "12px 0", borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Create Group</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
+
       {showAddListing && (() => {
         const inputStyle = { padding: "9px 14px", borderRadius: 10, border: "1px solid #e2e5ea", background: "#f7f8fa", color: "#111", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none", width: "100%", boxSizing: "border-box" };
         const field = (label, key, type = "text", opts = {}) => (
